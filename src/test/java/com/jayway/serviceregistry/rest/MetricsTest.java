@@ -1,4 +1,4 @@
-package com.jayway.serviceregistry.interfaces.rest;
+package com.jayway.serviceregistry.rest;
 
 import com.jayway.serviceregistry.boot.ApplicationStart;
 import org.junit.Test;
@@ -9,29 +9,29 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
-import static com.jayway.restassured.RestAssured.withArgs;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = ApplicationStart.class)
 @WebAppConfiguration
-public class EntryPointControllerTest {
+public class MetricsTest {
+
     @Autowired
-    WebApplicationContext wac;
+    protected WebApplicationContext wac;
+
+    // @formatter:off
 
     @Test public void
-    entry_point_returns_links() {
+    metrics_are_provided_by_spring_actuator() {
         given().
                 webAppContextSetup(wac).
         when().
-                get("/").
+                get("/metrics").
         then().
-                statusCode(200).
-                root("_links.%s.href").
-                body(withArgs("self"), notNullValue()).
-                body(withArgs("health"), endsWith("/health")).
-                body(withArgs("metrics"), endsWith("/metrics"));
+                body("mem", greaterThan(0.0f)).
+                body("processors", greaterThanOrEqualTo(1.0f));
     }
+    // @formatter:on
 }

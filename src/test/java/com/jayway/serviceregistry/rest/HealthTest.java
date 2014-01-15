@@ -1,4 +1,4 @@
-package com.jayway.serviceregistry.interfaces.rest;
+package com.jayway.serviceregistry.rest;
 
 import com.jayway.serviceregistry.boot.ApplicationStart;
 import org.junit.Test;
@@ -10,13 +10,12 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.equalTo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = ApplicationStart.class)
 @WebAppConfiguration
-public class MetricsTest {
+public class HealthTest {
 
     @Autowired
     protected WebApplicationContext wac;
@@ -24,14 +23,14 @@ public class MetricsTest {
     // @formatter:off
 
     @Test public void
-    metrics_are_provided_by_spring_actuator() {
+    health_stats_are_provided_by_spring_actuator() {
         given().
                 webAppContextSetup(wac).
         when().
-                get("/metrics").
+                get("/health").
         then().
-                body("mem", greaterThan(0.0f)).
-                body("processors", greaterThanOrEqualTo(1.0f));
+                statusCode(200).
+                body(equalTo("ok"));
     }
     // @formatter:on
 }

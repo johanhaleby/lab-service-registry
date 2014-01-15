@@ -1,4 +1,4 @@
-package com.jayway.serviceregistry.interfaces.rest;
+package com.jayway.serviceregistry.rest;
 
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.ResourceSupport;

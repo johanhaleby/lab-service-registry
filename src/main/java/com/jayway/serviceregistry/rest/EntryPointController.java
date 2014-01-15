@@ -1,4 +1,4 @@
-package com.jayway.serviceregistry.interfaces.rest;
+package com.jayway.serviceregistry.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.HealthEndpoint;
