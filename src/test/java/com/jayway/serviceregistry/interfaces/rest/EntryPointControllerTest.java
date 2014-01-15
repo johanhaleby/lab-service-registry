@@ -9,28 +9,29 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
+import static com.jayway.restassured.RestAssured.withArgs;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = ApplicationStart.class)
 @WebAppConfiguration
-public class HealthTest {
-
+public class EntryPointControllerTest {
     @Autowired
-    protected WebApplicationContext wac;
-
-    // @formatter:off
+    WebApplicationContext wac;
 
     @Test public void
-    health_stats_are_provided_by_spring_actuator() {
+    entry_point_returns_links() {
         given().
                 webAppContextSetup(wac).
         when().
-                get("/health").
+                get("/").
         then().
                 statusCode(200).
-                body(equalTo("ok"));
+                root("_links.%s.href").
+                body(withArgs("self"), notNullValue()).
+                body(withArgs("health"), endsWith("/health")).
+                body(withArgs("metrics"), endsWith("/metrics"));
     }
-    // @formatter:on
 }
