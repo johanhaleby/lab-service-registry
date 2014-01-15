@@ -1,6 +1,6 @@
 package com.jayway.serviceregistry.rest;
 
-import com.jayway.serviceregistry.boot.ApplicationStart;
+import com.jayway.serviceregistry.boot.ServiceRegistryStart;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,7 @@ import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = ApplicationStart.class)
+@ContextConfiguration(classes = ServiceRegistryStart.class)
 @WebAppConfiguration
 public class HealthTest {
 

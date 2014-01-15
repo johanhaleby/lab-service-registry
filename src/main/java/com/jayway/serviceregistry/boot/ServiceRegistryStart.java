@@ -14,10 +14,10 @@ import static org.springframework.hateoas.config.EnableHypermediaSupport.Hyperme
 @ComponentScan("com.jayway.serviceregistry")
 @EnableHypermediaSupport(type = HAL)
 @EnableAutoConfiguration
-public class ApplicationStart extends SpringBootServletInitializer {
+public class ServiceRegistryStart extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
-        SpringApplication.run(ApplicationStart.class);
+        SpringApplication.run(ServiceRegistryStart.class);
     }
 
     @Override
