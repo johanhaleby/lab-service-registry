@@ -17,7 +17,7 @@ import static org.springframework.hateoas.config.EnableHypermediaSupport.Hyperme
 public class ServiceRegistryStart extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
-        SpringApplication.run(ServiceRegistryStart.class);
+        SpringApplication.run(ServiceRegistryStart.class, args);
     }
 
     @Override
