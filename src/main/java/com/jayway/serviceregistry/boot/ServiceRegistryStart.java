@@ -15,7 +15,7 @@ import static org.springframework.hateoas.config.EnableHypermediaSupport.Hyperme
 @ComponentScan("com.jayway.serviceregistry")
 @EnableHypermediaSupport(type = HAL)
 @EnableAutoConfiguration
-@Import(MongoConfiguration.class)
+@Import({MongoConfiguration.class, RabbitMQConfiguration.class})
 public class ServiceRegistryStart extends SpringBootServletInitializer {
 
     public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package com.jayway.serviceregistry.messagebus;
+package com.jayway.serviceregistry.messagebus.protocol;
 
 import java.util.HashMap;
 import java.util.List;
