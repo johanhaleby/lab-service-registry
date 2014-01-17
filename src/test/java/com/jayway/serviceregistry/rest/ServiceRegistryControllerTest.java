@@ -14,9 +14,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static com.jayway.restassured.RestAssured.withArgs;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.get;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = ServiceRegistryStart.class)
