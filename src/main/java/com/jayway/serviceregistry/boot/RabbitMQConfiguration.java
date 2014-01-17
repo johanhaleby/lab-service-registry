@@ -71,7 +71,7 @@ class RabbitMQConfiguration {
     }
 
     @Bean
-    public ConnectionFactory rabbitConnectionFactory() {
+    public CachingConnectionFactory rabbitConnectionFactory() {
         log.info("AMQP URL: {}", isBlank(amqpConnectionUri) ? "<default>" : amqpConnectionUri);
 
         RabbitConnectionFactoryProperties config = uriToProperties(amqpConnectionUri);
