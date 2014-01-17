@@ -1,7 +1,7 @@
 package com.jayway.serviceregistry.messagebus;
 
 public enum Topic {
-    LOG("lab.log"), GAME("lab.game"), SERVICE("lab.service");
+    LOG("log"), GAME("game"), SERVICE("service");
     private static final String EXCHANGE = "lab";
 
     private final String routingKey;

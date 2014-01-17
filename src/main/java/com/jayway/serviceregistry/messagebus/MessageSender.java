@@ -9,19 +9,20 @@ import org.springframework.util.Assert;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.jayway.serviceregistry.messagebus.Topic.*;
 import static com.jayway.serviceregistry.messagebus.protocol.EventType.*;
 
 @Service
 public class MessageSender {
 
-    private static final String ANONYMOUS_ROUTING_KEY = "lab.log";
+    private static final String ANONYMOUS_ROUTING_KEY = "log";
 
     private static final Map<String, String> EVENT_TYPE_TO_ROUTING_KEY = new HashMap<String, String>() {{
-        put(GAME_CREATED_EVENT, "lab.game");
-        put(GAME_ENDED_EVENT, "lab.game");
-        put(LOG_EVENT, "lab.log");
-        put(SERVICE_ONLINE_EVENT, "lab.service");
-        put(SERVICE_OFFLINE_EVENT, "lab.service");
+        put(GAME_CREATED_EVENT, GAME.getRoutingKey());
+        put(GAME_ENDED_EVENT, GAME.getRoutingKey());
+        put(LOG_EVENT, LOG.getRoutingKey());
+        put(SERVICE_ONLINE_EVENT, SERVICE.getRoutingKey());
+        put(SERVICE_OFFLINE_EVENT, SERVICE.getRoutingKey());
     }};
 
     @Autowired
