@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
@@ -22,7 +21,6 @@ import org.springframework.context.annotation.Configuration;
 import javax.annotation.PostConstruct;
 
 import static org.apache.commons.lang3.StringUtils.*;
-import static org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration.RabbitConnectionFactoryProperties;
 
 /**
  * Spring boot creates beans by default using the {@link org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration} class but we override the
@@ -72,9 +70,9 @@ class RabbitMQConfiguration {
 
     @Bean
     public CachingConnectionFactory rabbitConnectionFactory() {
-        log.info("AMQP URL: {}", isBlank(amqpConnectionUri) ? "<default>" : amqpConnectionUri);
+        log.info("AMQP URL: {}", isBlank(amqpConnectionUri) ? "localhost:5672" : amqpConnectionUri);
 
-        RabbitConnectionFactoryProperties config = uriToProperties(amqpConnectionUri);
+        RabbitConnectionFactoryConfig config = uriToConnectionConfig(amqpConnectionUri);
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory(config.getHost());
         connectionFactory.setPort(config.getPort());
 
@@ -85,7 +83,7 @@ class RabbitMQConfiguration {
             connectionFactory.setPassword(config.getPassword());
         }
         if (config.getVirtualHost() != null) {
-            connectionFactory.setVirtualHost(config.getVirtualHost());
+            connectionFactory.setVirtualHost(StringUtils.remove(config.getVirtualHost(), '/'));
         }
 
         return connectionFactory;
@@ -101,11 +99,11 @@ class RabbitMQConfiguration {
     }
 
     /*
-     * Hack to convert an AMQP URL to a RabbitConnectionFactoryProperties class
+     * Hack to convert an AMQP URL to a RabbitConnectionFactoryConfig class
      */
 
-    static RabbitConnectionFactoryProperties uriToProperties(String uri) {
-        RabbitConnectionFactoryProperties properties = new RabbitConnectionFactoryProperties();
+    static RabbitConnectionFactoryConfig uriToConnectionConfig(String uri) {
+        RabbitConnectionFactoryConfig properties = new RabbitConnectionFactoryConfig();
         if (isNotEmpty(uri)) {
             String username = StringUtils.substringBetween(uri, "amqp://", ":");
             String password = StringUtils.substringBetween(uri, username + ":", "@");
@@ -123,7 +121,7 @@ class RabbitMQConfiguration {
                 host = StringUtils.substringBefore(hostWithPort, ":");
                 port = NumberUtils.toInt(StringUtils.substringAfter(hostWithPort, ":"));
             }
-            String virtualHost = StringUtils.substringAfter(uri, hostWithPort);
+            String virtualHost = StringUtils.substringAfter(uri, hostWithPort + "/");
 
 
             properties.setUsername(username);
@@ -137,6 +135,64 @@ class RabbitMQConfiguration {
 
         }
         return properties;
+    }
+
+    /**
+     * There's a bug in the {@link org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration.RabbitConnectionFactoryProperties} class
+     * which adds a "/" at the start of the virtual host. This fails when connecting to Cloud AMQP.
+     */
+    static class RabbitConnectionFactoryConfig {
+
+        private String host = "localhost";
+
+        private int port = 5672;
+
+        private String username;
+
+        private String password;
+
+        private String virtualHost;
+
+        public String getHost() {
+            return this.host;
+        }
+
+        public void setHost(String host) {
+            this.host = host;
+        }
+
+        public int getPort() {
+            return this.port;
+        }
+
+        public void setPort(int port) {
+            this.port = port;
+        }
+
+        public String getUsername() {
+            return this.username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return this.password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getVirtualHost() {
+            return this.virtualHost;
+        }
+
+        public void setVirtualHost(String virtualHost) {
+            this.virtualHost = virtualHost;
+        }
+
     }
 
     @PostConstruct

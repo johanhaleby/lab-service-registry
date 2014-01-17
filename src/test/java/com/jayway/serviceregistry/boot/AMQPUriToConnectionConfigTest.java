@@ -2,10 +2,10 @@ package com.jayway.serviceregistry.boot;
 
 import org.junit.Test;
 
+import static com.jayway.serviceregistry.boot.RabbitMQConfiguration.RabbitConnectionFactoryConfig;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration.RabbitConnectionFactoryProperties;
 
-public class RabbitMQUriToPropertiesTest  {
+public class AMQPUriToConnectionConfigTest {
 
     @Test public void
     parses_url_without_port_to_rabbit_connection_factory_properties() {
@@ -13,14 +13,14 @@ public class RabbitMQUriToPropertiesTest  {
         String uri = "amqp://user:pw@bunny.cloudamqp.com/virtual";
 
         // When
-        RabbitConnectionFactoryProperties config = RabbitMQConfiguration.uriToProperties(uri);
+        RabbitConnectionFactoryConfig config = RabbitMQConfiguration.uriToConnectionConfig(uri);
 
         // Then
         assertThat(config.getHost()).isEqualTo("bunny.cloudamqp.com");
         assertThat(config.getPort()).isEqualTo(5672);
         assertThat(config.getUsername()).isEqualTo("user");
         assertThat(config.getPassword()).isEqualTo("pw");
-        assertThat(config.getVirtualHost()).isEqualTo("/virtual");
+        assertThat(config.getVirtualHost()).isEqualTo("virtual");
     }
 
     @Test public void
@@ -29,14 +29,14 @@ public class RabbitMQUriToPropertiesTest  {
         String uri = "amqp://user:pw@bunny.cloudamqp.com:4321/virtual";
 
         // When
-        RabbitConnectionFactoryProperties config = RabbitMQConfiguration.uriToProperties(uri);
+        RabbitConnectionFactoryConfig config = RabbitMQConfiguration.uriToConnectionConfig(uri);
 
         // Then
         assertThat(config.getHost()).isEqualTo("bunny.cloudamqp.com");
         assertThat(config.getPort()).isEqualTo(4321);
         assertThat(config.getUsername()).isEqualTo("user");
         assertThat(config.getPassword()).isEqualTo("pw");
-        assertThat(config.getVirtualHost()).isEqualTo("/virtual");
+        assertThat(config.getVirtualHost()).isEqualTo("virtual");
     }
 
     @Test public void
@@ -45,7 +45,7 @@ public class RabbitMQUriToPropertiesTest  {
         String uri = "amqp://user:pw@bunny.cloudamqp.com";
 
         // When
-        RabbitConnectionFactoryProperties config = RabbitMQConfiguration.uriToProperties(uri);
+        RabbitConnectionFactoryConfig config = RabbitMQConfiguration.uriToConnectionConfig(uri);
 
         // Then
         assertThat(config.getHost()).isEqualTo("bunny.cloudamqp.com");
@@ -61,7 +61,7 @@ public class RabbitMQUriToPropertiesTest  {
         String uri = "amqp://user:pw@bunny.cloudamqp.com:4321";
 
         // When
-        RabbitConnectionFactoryProperties config = RabbitMQConfiguration.uriToProperties(uri);
+        RabbitConnectionFactoryConfig config = RabbitMQConfiguration.uriToConnectionConfig(uri);
 
         // Then
         assertThat(config.getHost()).isEqualTo("bunny.cloudamqp.com");
@@ -77,7 +77,7 @@ public class RabbitMQUriToPropertiesTest  {
         String uri = "";
 
         // When
-        RabbitConnectionFactoryProperties config = RabbitMQConfiguration.uriToProperties(uri);
+        RabbitConnectionFactoryConfig config = RabbitMQConfiguration.uriToConnectionConfig(uri);
 
         // Then
         assertThat(config.getHost()).isEqualTo("localhost");
