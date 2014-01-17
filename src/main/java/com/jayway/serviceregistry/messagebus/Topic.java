@@ -1,15 +1,20 @@
 package com.jayway.serviceregistry.messagebus;
 
 public enum Topic {
-    LOG("lab.log"), GAME("lab.game"), SERVICE("lab.service");
+    LOG("lab.log.*"), GAME("lab.game.*"), SERVICE("lab.service.*");
+    private static final String EXCHANGE = "lab";
 
-    private final String exchange;
+    private final String routingKey;
 
-    Topic(String exchange) {
-        this.exchange = exchange;
+    Topic(String routingKey) {
+        this.routingKey = routingKey;
     }
 
-    public String getExchange() {
-        return exchange;
+    public String getRoutingKey() {
+        return routingKey;
+    }
+
+    public static String getLabExchange() {
+        return EXCHANGE;
     }
 }

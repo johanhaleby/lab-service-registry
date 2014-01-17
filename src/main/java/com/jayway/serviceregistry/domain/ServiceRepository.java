@@ -9,5 +9,4 @@ public interface ServiceRepository extends MongoRepository<Service, String> {
     List<Service> findByCreatedBy(String createdBy);
 
     Service findByName(String name);
-
 }

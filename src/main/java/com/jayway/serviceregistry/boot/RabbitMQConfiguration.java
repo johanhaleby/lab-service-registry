@@ -4,10 +4,11 @@ import com.jayway.serviceregistry.messagebus.ServiceMessageReceiver;
 import com.jayway.serviceregistry.messagebus.Topic;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.connection.RabbitAccessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
@@ -20,8 +21,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.*;
 import static org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration.RabbitConnectionFactoryProperties;
 
 /**
@@ -30,6 +30,7 @@ import static org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguratio
  */
 @Configuration
 class RabbitMQConfiguration {
+    private static final Logger log = LoggerFactory.getLogger(RabbitMQConfiguration.class);
 
     @Value("${amqp.connection.url:}")
     String amqpConnectionUri;
@@ -52,13 +53,13 @@ class RabbitMQConfiguration {
     }
 
     @Bean
-    public TopicExchange serviceTopicExchange() {
-        return new TopicExchange(Topic.SERVICE.getExchange());
+    public TopicExchange labTopicExchange() {
+        return new TopicExchange(Topic.getLabExchange());
     }
 
     @Bean
     public Queue clientQueue() {
-        return amqpAdmin.declareQueue();
+        return amqpAdmin.declareQueue(); // Perhaps it should be durable if we need to redeploy this app during the lab?
     }
 
     /**
@@ -66,11 +67,13 @@ class RabbitMQConfiguration {
      */
     @Bean
     public Binding serviceTopicBinding() {
-        return BindingBuilder.bind(clientQueue()).to(serviceTopicExchange()).with("anonymous.info");
+        return BindingBuilder.bind(clientQueue()).to(labTopicExchange()).with(Topic.SERVICE.getRoutingKey());
     }
 
     @Bean
     public ConnectionFactory rabbitConnectionFactory() {
+        log.info("AMQP URL: {}", isBlank(amqpConnectionUri) ? "<default>" : amqpConnectionUri);
+
         RabbitConnectionFactoryProperties config = uriToProperties(amqpConnectionUri);
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory(config.getHost());
         connectionFactory.setPort(config.getPort());
