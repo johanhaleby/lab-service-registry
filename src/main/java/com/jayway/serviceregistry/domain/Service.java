@@ -84,14 +84,5 @@ public class Service {
         return result;
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Service{");
-        sb.append("serviceId='").append(serviceId).append('\'');
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", createdBy='").append(createdBy).append('\'');
-        sb.append(", entryPoint='").append(entryPoint).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
+
 }
