@@ -1,6 +1,7 @@
 package com.jayway.serviceregistry.rest;
 
 import com.jayway.serviceregistry.domain.Service;
+import com.jayway.serviceregistry.domain.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.actuate.endpoint.MetricsEndpoint;
@@ -11,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
@@ -24,6 +28,8 @@ public class ServiceRegistryController {
     HealthEndpoint healthEndpoint;
     @Autowired
     MetricsEndpoint metricsEndpoint;
+    @Autowired
+    ServiceRepository serviceRepository;
 
     @RequestMapping(value = "/", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -38,11 +44,12 @@ public class ServiceRegistryController {
     @RequestMapping(value = "/services", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
     public HttpEntity<Links> services() {
-        Service service1 = new Service("service1", "Service Creator 1", "http://some-url.com/service1");
-        Service service2 = new Service("service2", "Service Creator 2", "http://some-url.com/service2");
-        Link selfLink = linkTo(methodOn(ServiceRegistryController.class).services()).withSelfRel();
-        Link serviceLink1 = new ServiceLink(service1);
-        Link serviceLink2 = new ServiceLink(service2);
-        return new ResponseEntity<>(new Links(selfLink, serviceLink1, serviceLink2), HttpStatus.OK);
+        List<Link> links = new ArrayList<>();
+        List<Service> services = serviceRepository.findAll();
+        links.add(linkTo(methodOn(ServiceRegistryController.class).services()).withSelfRel());
+        for (Service service : services) {
+            links.add(new ServiceLink(service));
+        }
+        return new ResponseEntity<>(new Links(links), HttpStatus.OK);
     }
 }

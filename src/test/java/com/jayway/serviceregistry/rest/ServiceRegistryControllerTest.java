@@ -2,6 +2,8 @@ package com.jayway.serviceregistry.rest;
 
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import com.jayway.serviceregistry.boot.ServiceRegistryStart;
+import com.jayway.serviceregistry.domain.Service;
+import com.jayway.serviceregistry.domain.ServiceRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +25,9 @@ public class ServiceRegistryControllerTest {
     @Autowired
     WebApplicationContext wac;
 
+    @Autowired
+    ServiceRepository serviceRepository;
+
     @Before public void
     given_rest_assured_is_configured_with_the_web_application_context() {
         RestAssuredMockMvc.webAppContextSetup(wac);
@@ -33,6 +38,12 @@ public class ServiceRegistryControllerTest {
     public void
     rest_assured_is_reset_after_each_test() {
         RestAssuredMockMvc.reset();
+    }
+
+
+    @Before @After
+    public void drop_mongo_service_collection() throws Exception {
+       serviceRepository.deleteAll();
     }
 
     @Test public void
@@ -48,6 +59,10 @@ public class ServiceRegistryControllerTest {
 
     @Test public void
     subresources_returns_links_to_defined_services_and_self() {
+        // Given
+        serviceRepository.save(new Service("service1", "Service Creator 1", "http://some-url.com/service1"));
+        serviceRepository.save(new Service("service2", "Service Creator 2", "http://some-url.com/service2"));
+
         String servicesLink = get().then().extract().path("_links.services.href");
 
         get(servicesLink).then().
