@@ -18,6 +18,7 @@ import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -54,6 +55,12 @@ class RabbitMQConfiguration {
     @Bean
     public AmqpAdmin amqpAdmin(CachingConnectionFactory connectionFactory) {
         return new RabbitAdmin(connectionFactory);
+    }
+
+    // Even though Spring boot defines this we end up with a circular dependency in Heroku so we need to define it here again for some reason.
+    @Bean
+    public RabbitTemplate rabbitTemplate(CachingConnectionFactory connectionFactory) {
+        return new RabbitTemplate(connectionFactory);
     }
 
     @Bean
