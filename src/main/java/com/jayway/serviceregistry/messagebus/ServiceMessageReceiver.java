@@ -90,7 +90,7 @@ public class ServiceMessageReceiver {
 
     private void logError(Map map, String message) {
         String streamId = toString(map, "streamId");
-        messageSender.sendMessage(Topic.LOG, Messages.logEvent("service-registry", LogLevel.ERROR, streamId == null ? "" : streamId, message));
+        messageSender.sendMessage(Topic.LOG, Messages.logEvent(LogLevel.ERROR, streamId == null ? "" : streamId, message));
     }
 
     private String getStringOrLogError(Map map, String key, String errorMessage) {

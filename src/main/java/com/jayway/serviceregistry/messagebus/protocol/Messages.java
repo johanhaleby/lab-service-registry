@@ -36,12 +36,12 @@ public class Messages {
         return createMessage(serviceId, SERVICE_ONLINE_EVENT, body);
     }
 
-    public static Map<String, Object> logEvent(String serviceId, LogLevel level, String context, String message)  {
+    public static Map<String, Object> logEvent(LogLevel level, String context, String message) {
         Map<String, Object> body = new HashMap<>();
         body.put("level", level);
         body.put("context", context);
         body.put("message", message);
-        return createMessage(serviceId, LOG_EVENT, body);
+        return createMessage(null, LOG_EVENT, body);
     }
 
     public static Map<String, Object> serviceOfflineEvent(String serviceId) {
@@ -55,7 +55,9 @@ public class Messages {
         message.put("type", type);
         message.put("body", body);
         message.put("meta", meta);
-        message.put("streamId", streamId);
+        if (streamId != null) {
+            message.put("streamId", streamId);
+        }
         message.put("createdAt", System.currentTimeMillis());
         return message;
     }
