@@ -50,6 +50,7 @@ class RabbitMQConfiguration {
     @Autowired
     MessageConverter messageConverter;
 
+    // Even though Spring boot defines this we end up with a circular dependency in Heroku so we need to define it here again for some reason.
     @Bean
     public AmqpAdmin amqpAdmin(CachingConnectionFactory connectionFactory) {
         return new RabbitAdmin(connectionFactory);
@@ -57,31 +58,7 @@ class RabbitMQConfiguration {
 
     @Bean
     public MessageConverter jsonMessageConverter() {
-        // We create our own MessageConverter because Springs message converter require us to add a lot of headers and contenttype in order to
-        // serialize and deserialize correctly. This is not needed in our Lab so we role our own.
-        final ObjectMapper objectMapper = new ObjectMapper();
-        return new MessageConverter() {
-            @Override
-            public Message toMessage(Object object, MessageProperties messageProperties) throws MessageConversionException {
-                byte[] obj;
-                try {
-                    obj = objectMapper.writeValueAsBytes(object);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-                messageProperties.setContentType("application/json");
-                return new Message(obj, messageProperties);
-            }
-
-            @Override
-            public Object fromMessage(Message message) throws MessageConversionException {
-                try {
-                    return objectMapper.readValue(message.getBody(), Map.class);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
+        return new LabMessageConverter();
     }
 
     @Bean
@@ -232,5 +209,34 @@ class RabbitMQConfiguration {
     @PostConstruct
     void setMessageConverterToRabbitTemplate() {
         rabbitTemplate.setMessageConverter(messageConverter);
+    }
+
+    /**
+     * We create our own MessageConverter because Springs message converter require us to add several headers specifiying the class type and content-type in order to
+     * serialize and deserialize correctly. This is not needed in our Lab so we role our own.
+     */
+    private static class LabMessageConverter implements MessageConverter {
+        final ObjectMapper objectMapper = new ObjectMapper();
+
+        @Override
+        public Message toMessage(Object object, MessageProperties messageProperties) throws MessageConversionException {
+            byte[] obj;
+            try {
+                obj = objectMapper.writeValueAsBytes(object);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+            messageProperties.setContentType("application/json");
+            return new Message(obj, messageProperties);
+        }
+
+        @Override
+        public Object fromMessage(Message message) throws MessageConversionException {
+            try {
+                return objectMapper.readValue(message.getBody(), Map.class);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
