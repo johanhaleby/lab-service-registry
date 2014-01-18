@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
@@ -44,6 +45,11 @@ class RabbitMQConfiguration {
 
     @Autowired
     MessageConverter messageConverter;
+
+    @Bean
+    public AmqpAdmin amqpAdmin(CachingConnectionFactory connectionFactory) {
+        return new RabbitAdmin(connectionFactory);
+    }
 
     @Bean
     public MessageConverter jsonMessageConverter() {
