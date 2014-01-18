@@ -29,8 +29,15 @@ public class ServiceMessageReceiver {
     /**
      * Called by Spring in a magic way (from a {@link org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter}.
      */
-    public void handleMessage(Map map) {
-        log.debug("Received {}", map);
+    public void handleMessage(Object object) {
+        log.debug("Received {}", object);
+
+        if(!(object instanceof Map)) {
+            log.debug("Received message couldn't be deserialized as a Map");
+            return;
+        }
+
+        Map map = (Map) object;
 
         String eventType = getStringOrLogError(map, "type", "No message type was defined");
 
