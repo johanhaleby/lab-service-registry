@@ -1,5 +1,7 @@
 package com.jayway.serviceregistry.boot;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.serviceregistry.messagebus.ServiceMessageReceiver;
 import com.jayway.serviceregistry.messagebus.Topic;
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +14,7 @@ import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +22,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -53,7 +57,31 @@ class RabbitMQConfiguration {
 
     @Bean
     public MessageConverter jsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
+        // We create our own MessageConverter because Springs message converter require us to add a lot of headers and contenttype in order to
+        // serialize and deserialize correctly. This is not needed in our Lab so we role our own.
+        final ObjectMapper objectMapper = new ObjectMapper();
+        return new MessageConverter() {
+            @Override
+            public Message toMessage(Object object, MessageProperties messageProperties) throws MessageConversionException {
+                byte[] obj;
+                try {
+                    obj = objectMapper.writeValueAsBytes(object);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+                messageProperties.setContentType("application/json");
+                return new Message(obj, messageProperties);
+            }
+
+            @Override
+            public Object fromMessage(Message message) throws MessageConversionException {
+                try {
+                    return objectMapper.readValue(message.getBody(), Map.class);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
     }
 
     @Bean
