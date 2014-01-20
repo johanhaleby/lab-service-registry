@@ -4,6 +4,7 @@ import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import com.jayway.serviceregistry.boot.ServiceRegistryStart;
 import com.jayway.serviceregistry.domain.Service;
 import com.jayway.serviceregistry.domain.ServiceRepository;
+import com.jayway.serviceregistry.security.ServiceRegistryUser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static com.jayway.restassured.RestAssured.withArgs;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.get;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -65,7 +67,11 @@ public class ServiceRegistryControllerTest {
 
         String servicesLink = get().then().extract().path("_links.services.href");
 
-        get(servicesLink).then().
+        given().
+                auth().principal(new ServiceRegistryUser("johan.haleby@gmail.com", "Johan", "Haleby")).
+        when().
+                get(servicesLink).
+        then().
                 statusCode(200).
                 root("_links.service.find { it.name == '%s'}").
                 body("href", withArgs("service1"), equalTo("http://some-url.com/service1")).
