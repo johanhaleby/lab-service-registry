@@ -32,7 +32,7 @@ ServiceOnlineEvent
 	"type":"object",
 	"$schema": "http://json-schema.org/draft-03/schema",
 	"id": "http://jsonschema.net",
-	"required":false,
+	"required":true,
 	"properties":{
 		"body": {
 			"type":"object",
@@ -106,7 +106,7 @@ ServiceOnlineEvent
 	"type":"object",
 	"$schema": "http://json-schema.org/draft-03/schema",
 	"id": "http://jsonschema.net",
-	"required":false,
+	"required":true,
 	"properties":{
 		"createdAt": {
 			"type":"number",
