@@ -1,7 +1,9 @@
 Service Registry Example
 ========================
 
-An example of a Service Registry that is easily deployed to Heroku. It using AMQP (such as RabbitMQ) to listens to service online and service offline events and registers services to MongoDB.
+An example of a Service Registry that is easily deployed to Heroku. It uses AMQP (such as RabbitMQ) to listen to service online and service offline events and registers services to MongoDB.
+The topic exchange to send messages to is called `lab` and routing key is `service`.
+
 
 Prerequisites
 -------------
@@ -97,7 +99,7 @@ Example:
 }
 ```
 
-ServiceOnlineEvent
+ServiceOfflineEvent
 ------------------
 
 [Schema:](http://json-schema.org/)
