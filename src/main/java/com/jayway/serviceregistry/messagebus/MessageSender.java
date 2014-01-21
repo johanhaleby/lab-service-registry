@@ -15,7 +15,7 @@ import static com.jayway.serviceregistry.messagebus.protocol.EventType.*;
 @Service
 public class MessageSender {
 
-    private static final String ANONYMOUS_ROUTING_KEY = "log";
+    private static final String FALLBACK_ROUTING_KEY = "log";
 
     private static final Map<String, String> EVENT_TYPE_TO_ROUTING_KEY = new HashMap<String, String>() {{
         put(GAME_CREATED_EVENT, GAME.getRoutingKey());
@@ -29,7 +29,7 @@ public class MessageSender {
     private AmqpTemplate amqpTemplate;
 
     public void sendMessage(Topic topic, Map<String, Object> message) {
-        sendMessage(topic, findRoutingKeyOrElse(message, ANONYMOUS_ROUTING_KEY), message);
+        sendMessage(topic, findRoutingKeyOrElse(message, FALLBACK_ROUTING_KEY), message);
     }
 
     public void sendMessage(Topic topic, String routingKey, Map<String, Object> message) {
