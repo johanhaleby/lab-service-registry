@@ -62,8 +62,8 @@ public class ServiceRegistryControllerTest {
     @Test public void
     subresources_returns_links_to_defined_services_and_self() {
         // Given
-        serviceRepository.save(new Service("service1", "Service Creator 1", "http://some-url.com/service1"));
-        serviceRepository.save(new Service("service2", "Service Creator 2", "http://some-url.com/service2"));
+        serviceRepository.save(new Service("id1", "service1", "Service Creator 1", "http://some-url.com/service1"));
+        serviceRepository.save(new Service("id2", "service2", "Service Creator 2", "http://some-url.com/service2"));
 
         String servicesLink = get().then().extract().path("_links.services.href");
 
@@ -76,7 +76,9 @@ public class ServiceRegistryControllerTest {
                 root("_links.service.find { it.name == '%s'}").
                 body("href", withArgs("service1"), equalTo("http://some-url.com/service1")).
                 body("createdBy", withArgs("service1"), equalTo("Service Creator 1")).
+                body("serviceId", withArgs("service1"), equalTo("id1")).
                 body("href", withArgs("service2"), equalTo("http://some-url.com/service2")).
-                body("createdBy", withArgs("service2"), equalTo("Service Creator 2"));
+                body("createdBy", withArgs("service2"), equalTo("Service Creator 2")).
+                body("serviceId", withArgs("service2"), equalTo("id2"));
     }
 }
