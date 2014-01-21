@@ -18,11 +18,9 @@ import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.Map;
 
@@ -43,12 +41,6 @@ class RabbitMQConfiguration {
     ServiceMessageReceiver serviceMessageReceiver;
 
     @Autowired
-    AmqpAdmin amqpAdmin;
-
-    @Autowired
-    RabbitTemplate rabbitTemplate;
-
-    @Autowired
     MessageConverter messageConverter;
 
     // Even though Spring boot defines this we end up with a circular dependency in Heroku so we need to define it here again for some reason.
@@ -59,8 +51,10 @@ class RabbitMQConfiguration {
 
     // Even though Spring boot defines this we end up with a circular dependency in Heroku so we need to define it here again for some reason.
     @Bean
-    public RabbitTemplate rabbitTemplate(CachingConnectionFactory connectionFactory) {
-        return new RabbitTemplate(connectionFactory);
+    public RabbitTemplate rabbitTemplate(CachingConnectionFactory connectionFactory, MessageConverter messageConverter) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(messageConverter);
+        return rabbitTemplate;
     }
 
     @Bean
@@ -74,7 +68,7 @@ class RabbitMQConfiguration {
     }
 
     @Bean
-    public Queue clientQueue() {
+    public Queue clientQueue(AmqpAdmin amqpAdmin) {
         return amqpAdmin.declareQueue(); // Perhaps it should be durable if we need to redeploy this app during the lab?
     }
 
@@ -82,8 +76,8 @@ class RabbitMQConfiguration {
      * Binds to the service topic exchange
      */
     @Bean
-    public Binding serviceTopicBinding() {
-        return BindingBuilder.bind(clientQueue()).to(labTopicExchange()).with(Topic.SERVICE.getRoutingKey());
+    public Binding serviceTopicBinding(AmqpAdmin amqpAdmin) {
+        return BindingBuilder.bind(clientQueue(amqpAdmin)).to(labTopicExchange()).with(Topic.SERVICE.getRoutingKey());
     }
 
     @Bean
@@ -108,10 +102,10 @@ class RabbitMQConfiguration {
     }
 
     @Bean
-    public SimpleMessageListenerContainer messageListenerContainer() {
+    public SimpleMessageListenerContainer messageListenerContainer(AmqpAdmin amqpAdmin) {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(rabbitConnectionFactory());
-        container.setQueueNames(clientQueue().getName());
+        container.setQueueNames(clientQueue(amqpAdmin).getName());
         container.setMessageListener(new MessageListenerAdapter(serviceMessageReceiver, jsonMessageConverter()));
         return container;
     }
@@ -211,11 +205,6 @@ class RabbitMQConfiguration {
             this.virtualHost = virtualHost;
         }
 
-    }
-
-    @PostConstruct
-    void setMessageConverterToRabbitTemplate() {
-        rabbitTemplate.setMessageConverter(messageConverter);
     }
 
     /**
