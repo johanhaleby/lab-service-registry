@@ -20,6 +20,7 @@ import static com.jayway.awaitility.Awaitility.to;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = ServiceRegistryStart.class)
@@ -54,5 +55,23 @@ public class SendAndReceiveServiceMessagesTest {
         assertThat(service.getEntryPoint()).isEqualTo("http://someurl1.com");
         assertThat(service.getServiceId()).isEqualTo(serviceId);
         assertThat(service.getCreatedBy()).isEqualTo("Johan");
+    }
+
+    @Test public void
+    service_offline_event_causes_the_service_to_be_unregistered_from_the_service_repository() throws Exception {
+        // Given
+        Service service1 = new Service("service1", "Johan", "http://someurl1.com");
+        Service service2 = new Service("service2", "Johan", "http://someurl2.com");
+        serviceRepository.save(service1);
+        serviceRepository.save(service2);
+
+        Map<String,Object> message = Messages.serviceOfflineEvent(service1.getServiceId());
+
+        // When
+        messageSender.sendMessage(Topic.SERVICE, message);
+
+        // Then
+        await().atMost(5, SECONDS).untilCall(to(serviceRepository).findByName("service1"), nullValue());
+        assertThat(serviceRepository.findByName("service2")).isNotNull();
     }
 }

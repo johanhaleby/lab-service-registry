@@ -32,7 +32,7 @@ public class ServiceMessageReceiver {
     public void handleMessage(Object object) {
         log.debug("Received {}", object);
 
-        if(!(object instanceof Map)) {
+        if (!(object instanceof Map)) {
             log.debug("Received message couldn't be deserialized as a Map");
             return;
         }
@@ -54,11 +54,8 @@ public class ServiceMessageReceiver {
     }
 
     private void removeServiceFromRegistry(Map map) {
-        String serviceName = getStringOrLogError(map, "streamId", "Message didn't define name of service to remove");
-        Service service = serviceRepository.findByName(serviceName);
-        if (service != null) {
-            serviceRepository.delete(service);
-        }
+        String serviceId = getStringOrLogError(map, "streamId", "Message didn't define the id of service to remove");
+        serviceRepository.delete(serviceId); // Deleting service that doesn't exist returns silently
     }
 
     private void addServiceToRegistry(Service service) {
