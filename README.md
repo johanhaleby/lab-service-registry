@@ -26,7 +26,7 @@ Both URLs must contain username and password, port etc.
 ServiceOnlineEvent
 ------------------
 
-Schema:
+[Schema:](http://json-schema.org/)
 ```javascript
 {
 	"type":"object",
@@ -100,7 +100,7 @@ Example:
 ServiceOnlineEvent
 ------------------
 
-Schema:
+[Schema:](http://json-schema.org/)
 ```javascript
 {
 	"type":"object",
