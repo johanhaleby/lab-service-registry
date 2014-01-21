@@ -116,7 +116,7 @@ Schema:
 		"meta": {
 			"type":"object",
 			"id": "http://jsonschema.net/meta",
-			"required":true
+			"required":false
 		},
 		"streamId": {
 			"type":"string",
