@@ -14,7 +14,7 @@ If you want to run the program locally you need:
 
 Deployment
 ----------
-The project contains Heroku configurations in the files `system.properties` and `Procfile`. How ever you need to add two properties pointing out the AMQP and MongoDB URL's.
+The project contains Heroku configurations in the files `system.properties` and `Procfile`. However you need to [add two properties](https://toolbelt.heroku.com/) pointing out the AMQP and MongoDB URL's.
 
 ```bash
 heroku config:set AMQP_URL="<amqp_url>"
