@@ -5,6 +5,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import java.util.Map;
 
 class ServiceLink extends Link {
 
@@ -19,6 +20,9 @@ class ServiceLink extends Link {
     @XmlAttribute
     String streamId;
 
+    @XmlAttribute
+    Map<String, Object> meta;
+
     ServiceLink(Service service) {
         this(service, null);
     }
@@ -28,6 +32,15 @@ class ServiceLink extends Link {
         this.name = service.getName();
         this.createdBy = service.getCreatedBy();
         this.streamId = service.getServiceId();
+        this.meta = service.getMeta();
+    }
+
+    public Map<String, Object> getMeta() {
+        return meta;
+    }
+
+    public void setMeta(Map<String, Object> meta) {
+        this.meta = meta;
     }
 
     public String getStreamId() {

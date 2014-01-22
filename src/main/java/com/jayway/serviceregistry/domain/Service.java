@@ -3,6 +3,7 @@ package com.jayway.serviceregistry.domain;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,6 +22,7 @@ public class Service {
         this.name = name;
         this.createdBy = createdBy;
         this.entryPoint = entryPoint;
+        this.meta = new HashMap<>();
     }
 
     public Service(String name, String createdBy, String entryPoint) {
