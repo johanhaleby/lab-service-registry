@@ -15,7 +15,7 @@ public class Messages {
         body.put("gameType", "rock-paper-scissors");
         body.put("gameUrl", "http://rps.com/games/" + gameId);
 
-        return createMessage(gameId, GAME_CREATED_EVENT, body);
+        return createMessage(gameId, GAME_CREATED_EVENT, body, new HashMap<String, Object>());
     }
 
     public static Map<String, Object> gameEndedEvent(String gameId, Map<String, Number> scores) {
@@ -24,16 +24,20 @@ public class Messages {
         body.put("result", "true");
         body.put("gameType", "rock-paper-scissors");
 
-        return createMessage(gameId, GAME_ENDED_EVENT, body);
+        return createMessage(gameId, GAME_ENDED_EVENT, body, new HashMap<String, Object>());
     }
 
     public static Map<String, Object> serviceOnlineEvent(String serviceId, String name, String entryPoint, String createdBy) {
+        return serviceOnlineEvent(serviceId, name, entryPoint, createdBy, new HashMap<String, Object>());
+    }
+
+    public static Map<String, Object> serviceOnlineEvent(String serviceId, String name, String entryPoint, String createdBy, Map<String, Object> meta) {
         Map<String, Object> body = new HashMap<>();
         body.put("name", name);
         body.put("createdBy", createdBy);
         body.put("entryPoint", entryPoint);
 
-        return createMessage(serviceId, SERVICE_ONLINE_EVENT, body);
+        return createMessage(serviceId, SERVICE_ONLINE_EVENT, body, meta);
     }
 
     public static Map<String, Object> logEvent(LogLevel level, String context, String message) {
@@ -41,17 +45,19 @@ public class Messages {
         body.put("level", level);
         body.put("context", context);
         body.put("message", message);
-        return createMessage(null, LOG_EVENT, body);
+        return createMessage(null, LOG_EVENT, body, new HashMap<String, Object>());
     }
 
     public static Map<String, Object> serviceOfflineEvent(String serviceId) {
         Map<String, Object> body = new HashMap<>();
-        return createMessage(serviceId, SERVICE_OFFLINE_EVENT, body);
+        return createMessage(serviceId, SERVICE_OFFLINE_EVENT, body, new HashMap<String, Object>());
     }
 
-    private static Map<String, Object> createMessage(String streamId, String type, Map<String, Object> body) {
+    private static Map<String, Object> createMessage(String streamId, String type, Map<String, Object> body, Map<String, Object> meta) {
         Map<String, Object> message = new HashMap<String, Object>();
-        Map<String, Object> meta = new HashMap<>();
+        if (meta == null) {
+            meta = new HashMap<>();
+        }
         message.put("type", type);
         message.put("body", body);
         message.put("meta", meta);

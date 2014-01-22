@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.serviceregistry.messagebus.protocol.EventType.SERVICE_OFFLINE_EVENT;
@@ -74,23 +75,32 @@ public class ServiceMessageReceiver {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Service toService(Map map) {
-        String serviceId = getStringOrLogError(map, "streamId", SERVICE_ONLINE_EVENT + " is missing attribute streamId.");
+        String streamId = getStringOrLogError(map, "streamId", SERVICE_ONLINE_EVENT + " is missing attribute streamId.");
 
         Object body = map.get("body");
         if (body == null) {
-            logError(map, "Body was undefined in " + SERVICE_ONLINE_EVENT + " with streamId " + serviceId);
+            logError(map, "Body was undefined in " + SERVICE_ONLINE_EVENT + " with streamId " + streamId);
         }
 
         if (!(body instanceof Map)) {
-            logError(map, "Body was not defined correctly in " + SERVICE_ONLINE_EVENT + " with streamId " + serviceId);
+            logError(map, "Body was not defined correctly in " + SERVICE_ONLINE_EVENT + " with streamId " + streamId);
         }
 
         Map serviceOnlineEvent = ((Map) body);
-        String name = getStringOrLogError(serviceOnlineEvent, "name", format("The body of event %s with streamId %s is missing attribute 'name'.", SERVICE_ONLINE_EVENT, serviceId));
-        String createdBy = getStringOrLogError(serviceOnlineEvent, "createdBy", format("The body of event %s with streamId %s is missing attribute 'createdBy'.", SERVICE_ONLINE_EVENT, serviceId));
-        String entryPoint = getStringOrLogError(serviceOnlineEvent, "entryPoint", format("The body of event %s with streamId %s is missing attribute 'entryPoint'", SERVICE_ONLINE_EVENT, serviceId));
-        return new Service(serviceId, name, createdBy, entryPoint);
+        String name = getStringOrLogError(serviceOnlineEvent, "name", format("The body of event %s with streamId %s is missing attribute 'name'.", SERVICE_ONLINE_EVENT, streamId));
+        String createdBy = getStringOrLogError(serviceOnlineEvent, "createdBy", format("The body of event %s with streamId %s is missing attribute 'createdBy'.", SERVICE_ONLINE_EVENT, streamId));
+        String entryPoint = getStringOrLogError(serviceOnlineEvent, "entryPoint", format("The body of event %s with streamId %s is missing attribute 'entryPoint'", SERVICE_ONLINE_EVENT, streamId));
+
+        Object meta = map.getOrDefault("meta", new HashMap<>());
+        if (!(meta instanceof Map)) {
+            logError(map, format("The meta part of event %s with streamId %s is not defined correctly. Was %s but required is JSON object (Map).", SERVICE_ONLINE_EVENT, streamId, meta == null ? null : meta.getClass().getSimpleName()));
+        }
+
+        Service service = new Service(streamId, name, createdBy, entryPoint);
+        service.setMeta((Map<String, Object>) meta);
+        return service;
     }
 
     private void logError(Map map, String message) {

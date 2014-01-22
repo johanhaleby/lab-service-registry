@@ -15,7 +15,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ServiceOfflineEventMessageReceiverTest {
+public class ServiceOfflineEventErrorReceiverTest {
     // @formatter:off
 
     @Mock ServiceRepository serviceRepository;
@@ -49,7 +49,7 @@ public class ServiceOfflineEventMessageReceiverTest {
     }
 
     @Test public void
-    publishes_error_log_when_service_online_event_is_using_a_stream_id_is_null() {
+    publishes_error_log_when_service_online_event_is_using_a_stream_id_that_is_null() {
         // Given
         Map<String,Object> event = Messages.serviceOfflineEvent("1");
         event.put("streamId", null);

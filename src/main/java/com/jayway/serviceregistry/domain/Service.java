@@ -3,6 +3,7 @@ package com.jayway.serviceregistry.domain;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class Service {
@@ -13,6 +14,7 @@ public class Service {
     private String name;
     private String createdBy;
     private String entryPoint;
+    private Map<String, Object> meta;
 
     public Service(String serviceId, String name, String createdBy, String entryPoint) {
         this.serviceId = serviceId;
@@ -60,6 +62,14 @@ public class Service {
         this.serviceId = serviceId;
     }
 
+    public Map<String, Object> getMeta() {
+        return meta;
+    }
+
+    public void setMeta(Map<String, Object> meta) {
+        this.meta = meta;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -69,6 +79,7 @@ public class Service {
 
         if (createdBy != null ? !createdBy.equals(service.createdBy) : service.createdBy != null) return false;
         if (entryPoint != null ? !entryPoint.equals(service.entryPoint) : service.entryPoint != null) return false;
+        if (meta != null ? !meta.equals(service.meta) : service.meta != null) return false;
         if (name != null ? !name.equals(service.name) : service.name != null) return false;
         if (serviceId != null ? !serviceId.equals(service.serviceId) : service.serviceId != null) return false;
 
@@ -81,8 +92,7 @@ public class Service {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
         result = 31 * result + (entryPoint != null ? entryPoint.hashCode() : 0);
+        result = 31 * result + (meta != null ? meta.hashCode() : 0);
         return result;
     }
-
-
 }

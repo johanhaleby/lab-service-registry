@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,7 +40,7 @@ public class SendAndReceiveServiceMessagesTest {
     }
 
     @Test public void
-    service_online_event_causes_a_new_service_to_be_registered_in_the_service_repository() throws Exception {
+    service_online_event_without_meta_causes_a_new_service_to_be_registered_in_the_service_repository() throws Exception {
         // Given
         String serviceId = UUID.randomUUID().toString();
         Map<String,Object> message = Messages.serviceOnlineEvent(serviceId, "service1", "http://someurl1.com", "Johan");
@@ -55,6 +56,29 @@ public class SendAndReceiveServiceMessagesTest {
         assertThat(service.getEntryPoint()).isEqualTo("http://someurl1.com");
         assertThat(service.getServiceId()).isEqualTo(serviceId);
         assertThat(service.getCreatedBy()).isEqualTo("Johan");
+    }
+
+    @Test public void
+    service_online_event_with_meta_causes_a_new_service_to_be_registered_in_the_service_repository() throws Exception {
+        // Given
+        String serviceId = UUID.randomUUID().toString();
+        Map<String, Object> meta = new HashMap<>();
+        meta.put("type", "nice-service");
+        meta.put("ttl", "42 hours");
+        Map<String,Object> message = Messages.serviceOnlineEvent(serviceId, "service1", "http://someurl1.com", "Johan", meta);
+
+        // When
+        messageSender.sendMessage(Topic.SERVICE, message);
+
+        // Then
+        await().atMost(5, SECONDS).untilCall(to(serviceRepository).count(), is(1L));
+        Service service = serviceRepository.findByName("service1");
+
+        assertThat(service.getName()).isEqualTo("service1");
+        assertThat(service.getEntryPoint()).isEqualTo("http://someurl1.com");
+        assertThat(service.getServiceId()).isEqualTo(serviceId);
+        assertThat(service.getCreatedBy()).isEqualTo("Johan");
+        assertThat(service.getMeta()).containsEntry("type", "nice-service").containsEntry("ttl", "42 hours").hasSize(2);
     }
 
     @Test public void

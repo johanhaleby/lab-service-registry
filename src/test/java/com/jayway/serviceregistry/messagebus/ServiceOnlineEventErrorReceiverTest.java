@@ -12,10 +12,11 @@ import java.util.Map;
 
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ServiceOnlineEventMessageReceiverTest {
+public class ServiceOnlineEventErrorReceiverTest {
     // @formatter:off
 
     @Mock ServiceRepository serviceRepository;
@@ -111,6 +112,32 @@ public class ServiceOnlineEventMessageReceiverTest {
 
         // Then
         verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+    }
+
+    @Test public void
+    publishes_error_log_when_service_online_event_meta_is_not_of_a_json_object() {
+        // Given
+        Map<String,Object> event = Messages.serviceOnlineEvent("id", "name", "entryPoint", "creator");
+        event.put("meta", 2);
+
+        // When
+        tested.handleMessage(event);
+
+        // Then
+        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+    }
+
+    @Test public void
+    doesnt_publish_error_log_when_service_online_event_meta_is_missing() {
+        // Given
+        Map<String,Object> event = Messages.serviceOnlineEvent("id", "name", "entryPoint", "creator");
+        event.remove("meta");
+
+        // When
+        tested.handleMessage(event);
+
+        // Then
+        verify(messageSender, never()).sendMessage(eq(Topic.LOG), anyMap());
     }
     // @formatter:on
 }
