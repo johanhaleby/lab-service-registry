@@ -208,7 +208,7 @@ class RabbitMQConfiguration {
     }
 
     /**
-     * We create our own MessageConverter because Springs message converter require us to add several headers specifiying the class type and content-type in order to
+     * We create our own MessageConverter because Springs message converter require us to add several headers specifying the class type and content-type in order to
      * serialize and deserialize correctly. This is not needed in our Lab so we role our own.
      */
     private static class LabMessageConverter implements MessageConverter {
