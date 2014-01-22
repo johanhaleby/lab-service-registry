@@ -93,7 +93,7 @@ public class ServiceMessageReceiver {
         String createdBy = getStringOrLogError(serviceOnlineEvent, "createdBy", format("The body of event %s with streamId %s is missing attribute 'createdBy'.", SERVICE_ONLINE_EVENT, streamId));
         String entryPoint = getStringOrLogError(serviceOnlineEvent, "entryPoint", format("The body of event %s with streamId %s is missing attribute 'entryPoint'", SERVICE_ONLINE_EVENT, streamId));
 
-        Object meta = map.getOrDefault("meta", new HashMap<>());
+        Object meta = getOrDefault(map, "meta", new HashMap<String, Object>());
         if (!(meta instanceof Map)) {
             logError(map, format("The meta part of event %s with streamId %s is not defined correctly. Was %s but required is JSON object (Map).", SERVICE_ONLINE_EVENT, streamId, meta == null ? null : meta.getClass().getSimpleName()));
         }
@@ -101,6 +101,18 @@ public class ServiceMessageReceiver {
         Service service = new Service(streamId, name, createdBy, entryPoint);
         service.setMeta((Map<String, Object>) meta);
         return service;
+    }
+
+    // This method will be available in the Map interface in Java 8.
+    private Object getOrDefault(Map map, String meta, HashMap<String, Object> defaultValue) {
+        if (map == null) {
+            return defaultValue;
+        }
+        Object value = map.get(meta);
+        if (value == null) {
+            return defaultValue;
+        }
+        return value;
     }
 
     private void logError(Map map, String message) {
