@@ -17,7 +17,7 @@ class ServiceLink extends Link {
     String createdBy;
 
     @XmlAttribute
-    String serviceId;
+    String streamId;
 
     ServiceLink(Service service) {
         this(service, null);
@@ -27,15 +27,15 @@ class ServiceLink extends Link {
         super(username == null ? service.getEntryPoint() : UriComponentsBuilder.fromHttpUrl(service.getEntryPoint()).queryParam("username", username).build().toUriString(), SERVICE_REL);
         this.name = service.getName();
         this.createdBy = service.getCreatedBy();
-        this.serviceId = service.getServiceId();
+        this.streamId = service.getServiceId();
     }
 
-    public String getServiceId() {
-        return serviceId;
+    public String getStreamId() {
+        return streamId;
     }
 
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
+    public void setStreamId(String streamId) {
+        this.streamId = streamId;
     }
 
     public String getName() {

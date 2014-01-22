@@ -76,9 +76,9 @@ public class ServiceRegistryControllerTest {
                 root("_links.service.find { it.name == '%s'}").
                 body("href", withArgs("service1"), equalTo("http://some-url.com/service1")).
                 body("createdBy", withArgs("service1"), equalTo("Service Creator 1")).
-                body("serviceId", withArgs("service1"), equalTo("id1")).
+                body("streamId", withArgs("service1"), equalTo("id1")).
                 body("href", withArgs("service2"), equalTo("http://some-url.com/service2")).
                 body("createdBy", withArgs("service2"), equalTo("Service Creator 2")).
-                body("serviceId", withArgs("service2"), equalTo("id2"));
+                body("streamId", withArgs("service2"), equalTo("id2"));
     }
 }
