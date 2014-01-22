@@ -60,7 +60,11 @@ public class ServiceRegistryControllerTest {
                 body(withArgs("self"), notNullValue()).
                 body(withArgs("services"), endsWith("/services")).
                 body(withArgs("health"), endsWith("/health")).
-                body(withArgs("metrics"), endsWith("/metrics"));
+                body(withArgs("metrics"), endsWith("/metrics")).
+                body(withArgs("beans"), endsWith("/beans")).
+                body(withArgs("dump"), endsWith("/dump")).
+                body(withArgs("trace"), endsWith("/trace")).
+                body(withArgs("autoconfig"), endsWith("/autoconfig"));
     }
 
     @Test public void

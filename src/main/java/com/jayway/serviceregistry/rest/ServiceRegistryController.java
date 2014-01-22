@@ -6,8 +6,7 @@ import com.jayway.serviceregistry.security.ServiceRegistryUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.HealthEndpoint;
-import org.springframework.boot.actuate.endpoint.MetricsEndpoint;
+import org.springframework.boot.actuate.endpoint.*;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -34,6 +33,15 @@ public class ServiceRegistryController {
     @Autowired
     MetricsEndpoint metricsEndpoint;
     @Autowired
+    TraceEndpoint traceEndpoint;
+    @Autowired
+    DumpEndpoint dumpEndpoint;
+    @Autowired
+    BeansEndpoint beansEndpoint;
+    @Autowired
+    AutoConfigurationReportEndpoint autoConfigurationReportEndpoint;
+
+    @Autowired
     ServiceRepository serviceRepository;
 
     @RequestMapping(value = "/", method = GET, produces = APPLICATION_JSON_VALUE)
@@ -43,7 +51,11 @@ public class ServiceRegistryController {
         Link servicesLink = linkTo(methodOn(ServiceRegistryController.class).services()).withRel("services");
         Link healthLink = linkTo(ServiceRegistryController.class).slash(healthEndpoint.getId()).withRel("health");
         Link metricsLink = linkTo(ServiceRegistryController.class).slash(metricsEndpoint.getId()).withRel("metrics");
-        return new ResponseEntity<>(new Links(selfLink, servicesLink, healthLink, metricsLink), HttpStatus.OK);
+        Link traceLink = linkTo(ServiceRegistryController.class).slash(traceEndpoint.getId()).withRel("trace");
+        Link dumpLink = linkTo(ServiceRegistryController.class).slash(dumpEndpoint.getId()).withRel("dump");
+        Link beansLink = linkTo(ServiceRegistryController.class).slash(beansEndpoint.getId()).withRel("beans");
+        Link autoConfigurationReportLink = linkTo(ServiceRegistryController.class).slash(autoConfigurationReportEndpoint.getId()).withRel("autoconfig");
+        return new ResponseEntity<>(new Links(selfLink, servicesLink, healthLink, metricsLink, traceLink, dumpLink, beansLink, autoConfigurationReportLink), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/services", method = GET, produces = APPLICATION_JSON_VALUE)
