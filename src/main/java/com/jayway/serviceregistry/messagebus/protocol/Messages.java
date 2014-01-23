@@ -3,6 +3,7 @@ package com.jayway.serviceregistry.messagebus.protocol;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.jayway.serviceregistry.messagebus.protocol.EventType.*;
 
@@ -49,6 +50,14 @@ public class Messages {
         return createMessage(null, LOG_EVENT, body, new HashMap<String, Object>());
     }
 
+    public static Map<String, Object> logEvent(LogLevel level, String context, String message, Map<String, Object> meta) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("level", level);
+        body.put("context", context);
+        body.put("message", message);
+        return createMessage(null, LOG_EVENT, body, meta);
+    }
+
     public static Map<String, Object> serviceOfflineEvent(String serviceId) {
         Map<String, Object> body = new HashMap<>();
         return createMessage(serviceId, SERVICE_OFFLINE_EVENT, body, new HashMap<String, Object>());
@@ -65,6 +74,7 @@ public class Messages {
         if (streamId != null) {
             message.put("streamId", streamId);
         }
+        message.put("messageId", UUID.randomUUID().toString());
         message.put("createdAt", System.currentTimeMillis());
         return message;
     }

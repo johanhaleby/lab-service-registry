@@ -23,12 +23,15 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Component
 public class ServiceMessageReceiver {
     private static final Logger log = LoggerFactory.getLogger(ServiceMessageReceiver.class);
-    private static final String EMPTY_STRING = "";
+    private static final String UNKNOWN = "unknown";
+    private static final String SERVICE_REGISTRY = "service-registry";
+
     private static final String DESCRIPTION = "description";
     private static final String CREATED_BY = "createdBy";
     private static final String SERVICE_URL = "serviceUrl";
     private static final String SOURCE_URL = "sourceUrl";
     private static final String STREAM_ID = "streamId";
+    private static final String MESSAGE_ID = "messageId";
 
     @Autowired
     private ServiceRepository serviceRepository;
@@ -55,7 +58,8 @@ public class ServiceMessageReceiver {
             switch (eventType) {
                 case SERVICE_ONLINE_EVENT:
                     Service service = toService(map);
-                    addServiceToRegistry(service);
+                    String messageId = getStringOrLogError(map, MESSAGE_ID, format("%s with streamId %s is missing attribute '%s'.", SERVICE_ONLINE_EVENT, service.getServiceId(), MESSAGE_ID));
+                    addServiceToRegistry(messageId, service);
                     break;
                 case SERVICE_OFFLINE_EVENT:
                     removeServiceFromRegistry(map);
@@ -72,12 +76,11 @@ public class ServiceMessageReceiver {
         serviceRepository.delete(serviceId); // Deleting service that doesn't exist returns silently
     }
 
-    private void addServiceToRegistry(Service service) {
+    private void addServiceToRegistry(String messageId, Service service) {
         try {
             serviceRepository.save(service);
         } catch (DuplicateKeyException e) {
-            // Allows for idempotency
-            logError(service.getServiceId(), format("A service was already registered with name %s.", service.getDescription()));
+            logError(service.getServiceId(), messageId, format("A service was already registered with name %s.", service.getDescription()));
         }
     }
 
@@ -126,11 +129,15 @@ public class ServiceMessageReceiver {
 
     private void logError(Map map, String message) {
         String streamId = toString(map, STREAM_ID);
-        logError(streamId, message);
+        String messageId = toString(map, MESSAGE_ID);
+        logError(streamId, messageId, message);
     }
 
-    private void logError(String streamId, String message) {
-        messageSender.sendMessage(Topic.LOG, Messages.logEvent(LogLevel.ERROR, streamId == null ? EMPTY_STRING : streamId, message));
+    private void logError(String streamId, String messageId, String message) {
+        Map<String, Object> meta = new HashMap<>();
+        meta.put(STREAM_ID, streamId == null ? UNKNOWN : streamId);
+        meta.put(MESSAGE_ID, messageId == null ? UNKNOWN : messageId);
+        messageSender.sendMessage(Topic.LOG, Messages.logEvent(LogLevel.ERROR, SERVICE_REGISTRY, message, meta));
         throw new ServiceMessageNotCorrectException(message);
     }
 
@@ -150,7 +157,7 @@ public class ServiceMessageReceiver {
         if (value == null) {
             return null;
         } else if (!(value instanceof String)) {
-            logError((String) null, "The attribute " + key + " must be a String, was " + classOf(value) + ".");
+            logError(null, null, "The attribute " + key + " must be a String, was " + classOf(value) + ".");
         }
         return (String) value;
     }
@@ -162,7 +169,7 @@ public class ServiceMessageReceiver {
         return value.getClass().getSimpleName();
     }
 
-    public static class ServiceMessageNotCorrectException extends RuntimeException {
+    static class ServiceMessageNotCorrectException extends RuntimeException {
         public ServiceMessageNotCorrectException(String message) {
             super(message);
         }
