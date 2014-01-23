@@ -30,7 +30,7 @@ public class ServiceRepositoryTest {
     }
 
     @Test public void
-    finds_services_by_name() {
+    finds_services_by_service_id() {
         // Given
         Service savedService = serviceRepository.save(new Service("my-service", "Description", "Johan", "http://www.google.com", "<hidden>"));
 
