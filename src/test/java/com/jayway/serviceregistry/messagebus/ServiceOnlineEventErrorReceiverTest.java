@@ -37,6 +37,18 @@ public class ServiceOnlineEventErrorReceiverTest {
     }
 
     @Test public void
+    publishes_error_log_when_service_online_event_has_a_service_id_with_non_accepted_chars() {
+        // Given
+        Map<String,Object> event = Messages.serviceOnlineEvent("åäl odfs", "description", "creator" ,"serviceUrl", "sourceUrl");
+
+        // When
+        tested.handleMessage(event);
+
+        // Then
+        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+    }
+
+    @Test public void
     publishes_error_log_when_service_online_event_message_body_is_not_defined_correctly() {
         // Given
         Map<String,Object> event = Messages.serviceOnlineEvent("id", "description", "creator" ,"serviceUrl", "sourceUrl");

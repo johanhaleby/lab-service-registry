@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.jayway.serviceregistry.messagebus.protocol.EventType.SERVICE_OFFLINE_EVENT;
 import static com.jayway.serviceregistry.messagebus.protocol.EventType.SERVICE_ONLINE_EVENT;
@@ -22,6 +23,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 public class ServiceMessageReceiver {
+    private static final Pattern VALID_SERVICE_ID_PATTERN = Pattern.compile("[A-Za-z0-9_\\-]+");
     private static final Logger log = LoggerFactory.getLogger(ServiceMessageReceiver.class);
     private static final String UNKNOWN = "unknown";
     private static final String SERVICE_REGISTRY = "service-registry";
@@ -87,6 +89,11 @@ public class ServiceMessageReceiver {
     @SuppressWarnings("unchecked")
     private Service toService(Map map) {
         String streamId = getStringOrLogError(map, STREAM_ID, SERVICE_ONLINE_EVENT + " is missing attribute streamId.");
+        if (!VALID_SERVICE_ID_PATTERN.matcher(streamId).matches()) {
+            String errorMessage = format("The serviceId of event %s with streamId %s is must match reg exp %s.", SERVICE_ONLINE_EVENT, streamId, VALID_SERVICE_ID_PATTERN.toString());
+            logError(map, errorMessage);
+            throw new ServiceMessageNotCorrectException(errorMessage);
+        }
 
         Object potentialBody = map.get("body");
         if (potentialBody == null) {
