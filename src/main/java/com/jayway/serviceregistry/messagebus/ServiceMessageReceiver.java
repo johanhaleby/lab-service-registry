@@ -17,12 +17,18 @@ import java.util.Map;
 import static com.jayway.serviceregistry.messagebus.protocol.EventType.SERVICE_OFFLINE_EVENT;
 import static com.jayway.serviceregistry.messagebus.protocol.EventType.SERVICE_ONLINE_EVENT;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 public class ServiceMessageReceiver {
     private static final Logger log = LoggerFactory.getLogger(ServiceMessageReceiver.class);
     private static final String EMPTY_STRING = "";
+    private static final String DESCRIPTION = "description";
+    private static final String CREATED_BY = "createdBy";
+    private static final String SERVICE_URL = "serviceUrl";
+    private static final String SOURCE_URL = "sourceUrl";
+    private static final String STREAM_ID = "streamId";
 
     @Autowired
     private ServiceRepository serviceRepository;
@@ -62,7 +68,7 @@ public class ServiceMessageReceiver {
     }
 
     private void removeServiceFromRegistry(Map map) {
-        String serviceId = getStringOrLogError(map, "streamId", "Message didn't define the id of service to remove (streamId attribute is missing)");
+        String serviceId = getStringOrLogError(map, STREAM_ID, "Message didn't define the id of service to remove (streamId attribute is missing)");
         serviceRepository.delete(serviceId); // Deleting service that doesn't exist returns silently
     }
 
@@ -77,7 +83,7 @@ public class ServiceMessageReceiver {
 
     @SuppressWarnings("unchecked")
     private Service toService(Map map) {
-        String streamId = getStringOrLogError(map, "streamId", SERVICE_ONLINE_EVENT + " is missing attribute streamId.");
+        String streamId = getStringOrLogError(map, STREAM_ID, SERVICE_ONLINE_EVENT + " is missing attribute streamId.");
 
         Object potentialBody = map.get("body");
         if (potentialBody == null) {
@@ -89,10 +95,13 @@ public class ServiceMessageReceiver {
         }
 
         Map<String, Object> body = ((Map<String, Object>) potentialBody);
-        getStringOrLogError(body, "description", format("The body of event %s with streamId %s is missing attribute 'description'.", SERVICE_ONLINE_EVENT, streamId));
-        getStringOrLogError(body, "createdBy", format("The body of event %s with streamId %s is missing attribute 'createdBy'.", SERVICE_ONLINE_EVENT, streamId));
-        getStringOrLogError(body, "serviceUrl", format("The body of event %s with streamId %s is missing attribute 'serviceUrl'", SERVICE_ONLINE_EVENT, streamId));
-        getStringOrLogError(body, "sourceUrl", format("The body of event %s with streamId %s is missing attribute 'sourceUrl'", SERVICE_ONLINE_EVENT, streamId));
+        String description = getStringOrLogError(body, DESCRIPTION, format("The body of event %s with streamId %s is missing attribute '%s'.", SERVICE_ONLINE_EVENT, streamId, DESCRIPTION));
+        String createdBy = getStringOrLogError(body, CREATED_BY, format("The body of event %s with streamId %s is missing attribute '%s'.", SERVICE_ONLINE_EVENT, streamId, CREATED_BY));
+        String serviceUrl = getStringOrLogError(body, SERVICE_URL, format("The body of event %s with streamId %s is missing attribute '%s'", SERVICE_ONLINE_EVENT, streamId, SERVICE_URL));
+        String sourceUrl = getStringOrLogError(body, SOURCE_URL, format("The body of event %s with streamId %s is missing attribute '%s'", SERVICE_ONLINE_EVENT, streamId, SOURCE_URL));
+
+        Map<String, Object> supplementaryBodyAttributes = new HashMap<>(body);
+        supplementaryBodyAttributes.keySet().removeAll(asList(STREAM_ID, DESCRIPTION, CREATED_BY, SERVICE_URL, SOURCE_URL));
 
         Object potentialMeta = getOrDefault(map, "meta", new HashMap<String, Object>());
         if (!(potentialMeta instanceof Map)) {
@@ -100,7 +109,7 @@ public class ServiceMessageReceiver {
         }
         Map<String, Object> meta = (Map<String, Object>) potentialMeta;
 
-        return new Service(streamId, body, meta);
+        return new Service(streamId, description, createdBy, serviceUrl, sourceUrl, supplementaryBodyAttributes, meta);
     }
 
     // This method will be available in the Map interface in Java 8.
@@ -116,7 +125,7 @@ public class ServiceMessageReceiver {
     }
 
     private void logError(Map map, String message) {
-        String streamId = toString(map, "streamId");
+        String streamId = toString(map, STREAM_ID);
         logError(streamId, message);
     }
 

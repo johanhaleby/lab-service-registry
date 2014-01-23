@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -21,6 +23,7 @@ import java.util.List;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -47,6 +50,7 @@ public class ServiceRegistryController {
     @RequestMapping(value = "/", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
     public HttpEntity<Links> entryPoint() {
+        log.trace("Entry point requested by {}", getUsername());
         Link selfLink = linkTo(methodOn(ServiceRegistryController.class).entryPoint()).withSelfRel();
         Link servicesLink = linkTo(methodOn(ServiceRegistryController.class).services()).withRel("services");
         Link healthLink = linkTo(ServiceRegistryController.class).slash(healthEndpoint.getId()).withRel("health");
@@ -66,9 +70,21 @@ public class ServiceRegistryController {
         List<Service> services = serviceRepository.findAll();
         links.add(linkTo(methodOn(ServiceRegistryController.class).services()).withSelfRel());
         for (Service service : services) {
-            links.add(new ServiceLink(service));
+            links.add(linkTo(methodOn(ServiceRegistryController.class).service(service.getServiceId())).withRel("service"));
         }
         return new ResponseEntity<>(new Links(links), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/services/{serviceId}", method = GET, produces = APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public HttpEntity<ServiceDTO> service(@PathVariable("serviceId") String serviceId) {
+        log.trace("Service {} requested by {}", serviceId, getUsername());
+        Service service = serviceRepository.findOne(serviceId);
+        if (service == null) {
+            throw new IllegalArgumentException("Cannot find service with serviceId " + serviceId);
+        }
+        Link selfLink = linkTo(methodOn(ServiceRegistryController.class).service(serviceId)).withSelfRel();
+        return new ResponseEntity<>(new ServiceDTO(service, selfLink), HttpStatus.OK);
     }
 
     private String getUsername() {

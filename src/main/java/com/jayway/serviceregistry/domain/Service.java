@@ -9,23 +9,25 @@ public class Service {
 
     @Id
     private String serviceId;
+    private String description;
+    private String createdBy;
+    private String serviceUrl;
+    private String sourceUrl;
     private Map<String, Object> meta;
-    private Map<String, Object> body;
+    private Map<String, Object> optionalProperties;
 
     public Service(String serviceId, String description, String createdBy, String serviceUrl, String sourceUrl) {
-        this.serviceId = serviceId;
-        this.meta = new HashMap<>();
-        this.body = new HashMap<>();
-        body.put("description", description);
-        body.put("createdBy", createdBy);
-        body.put("serviceUrl", serviceUrl);
-        body.put("sourceUrl", sourceUrl);
+        this(serviceId, description, createdBy, serviceUrl, sourceUrl, new HashMap<String, Object>(), new HashMap<String, Object>());
     }
 
-    public Service(String serviceId, Map<String, Object> body, Map<String, Object> meta) {
+    public Service(String serviceId, String description, String createdBy, String serviceUrl, String sourceUrl, Map<String, Object> optionalProperties, Map<String, Object> meta) {
         this.serviceId = serviceId;
+        this.description = description;
+        this.createdBy = createdBy;
+        this.serviceUrl = serviceUrl;
+        this.sourceUrl = sourceUrl;
         this.meta = new HashMap<>(meta);
-        this.body = new HashMap<>(body);
+        this.optionalProperties = new HashMap<>(optionalProperties);
     }
 
     public Service() {
@@ -39,6 +41,38 @@ public class Service {
         this.serviceId = serviceId;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getServiceUrl() {
+        return serviceUrl;
+    }
+
+    public void setServiceUrl(String serviceUrl) {
+        this.serviceUrl = serviceUrl;
+    }
+
+    public String getSourceUrl() {
+        return sourceUrl;
+    }
+
+    public void setSourceUrl(String sourceUrl) {
+        this.sourceUrl = sourceUrl;
+    }
+
     public Map<String, Object> getMeta() {
         return meta;
     }
@@ -47,50 +81,12 @@ public class Service {
         this.meta = meta;
     }
 
-    public Map<String, Object> getBody() {
-        return body;
+    public Map<String, Object> getOptionalProperties() {
+        return optionalProperties;
     }
 
-    public void setBody(Map<String, Object> body) {
-        this.body = body;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Service service = (Service) o;
-
-        if (body != null ? !body.equals(service.body) : service.body != null) return false;
-        if (meta != null ? !meta.equals(service.meta) : service.meta != null) return false;
-        if (serviceId != null ? !serviceId.equals(service.serviceId) : service.serviceId != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = serviceId != null ? serviceId.hashCode() : 0;
-        result = 31 * result + (meta != null ? meta.hashCode() : 0);
-        result = 31 * result + (body != null ? body.hashCode() : 0);
-        return result;
-    }
-
-    public String getDescription() {
-        return (String) body.get("description");
-    }
-
-    public String getCreatedBy() {
-        return (String) body.get("createdBy");
-    }
-
-    public String getServiceUrl() {
-        return (String) body.get("serviceUrl");
-    }
-
-    public String getSourceUrl() {
-        return (String) body.get("sourceUrl");
+    public void setOptionalProperties(Map<String, Object> optionalProperties) {
+        this.optionalProperties = optionalProperties;
     }
 }
 

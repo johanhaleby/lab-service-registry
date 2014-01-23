@@ -57,6 +57,7 @@ public class SendAndReceiveServiceMessagesTest {
         assertThat(service.getSourceUrl()).isEqualTo("http://source1.com");
         assertThat(service.getServiceId()).isEqualTo(serviceId);
         assertThat(service.getCreatedBy()).isEqualTo("Johan");
+        assertThat(service.getOptionalProperties()).isEmpty();
     }
 
     @Test public void
@@ -80,6 +81,7 @@ public class SendAndReceiveServiceMessagesTest {
         assertThat(service.getServiceId()).isEqualTo(serviceId);
         assertThat(service.getCreatedBy()).isEqualTo("Johan");
         assertThat(service.getMeta()).containsEntry("type", "nice-service").containsEntry("ttl", "42 hours").hasSize(2);
+        assertThat(service.getOptionalProperties()).isEmpty();
     }
 
     @Test public void

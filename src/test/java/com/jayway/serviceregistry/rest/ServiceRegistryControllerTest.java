@@ -20,8 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.withArgs;
-import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.get;
-import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.*;
+import static com.jayway.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers.endsWithPath;
+import static com.jayway.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers.startsWithPath;
 import static org.hamcrest.Matchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -38,6 +39,7 @@ public class ServiceRegistryControllerTest {
     given_rest_assured_is_configured_with_the_web_application_context() {
         RestAssuredMockMvc.webAppContextSetup(wac);
         RestAssuredMockMvc.basePath = "/";
+        RestAssuredMockMvc.authentication = principal(new ServiceRegistryUser("johan.haleby@gmail.com", "Johan", "Haleby"));
     }
 
     @After
@@ -45,7 +47,6 @@ public class ServiceRegistryControllerTest {
     rest_assured_is_reset_after_each_test() {
         RestAssuredMockMvc.reset();
     }
-
 
     @Before @After
     public void drop_mongo_service_collection() throws Exception {
@@ -76,59 +77,108 @@ public class ServiceRegistryControllerTest {
         String servicesLink = get().then().extract().path("_links.services.href");
 
         // When
-
-        given().
-                auth().principal(new ServiceRegistryUser("johan.haleby@gmail.com", "Johan", "Haleby")).
         when().
                 get(servicesLink).
         then().
                 statusCode(200).
-                root("_links.service.find { it.name == '%s'}").
-                body("href", withArgs("service1"), equalTo("http://some-url.com/service1")).
-                body("createdBy", withArgs("service1"), equalTo("Service Creator 1")).
-                body("streamId", withArgs("service1"), equalTo("id1")).
-                body("meta.size()", withArgs("service1"), is(0)).
-                body("href", withArgs("service2"), equalTo("http://some-url.com/service2")).
-                body("createdBy", withArgs("service2"), equalTo("Service Creator 2")).
-                body("streamId", withArgs("service2"), equalTo("id2")).
-                body("meta.size()", withArgs("service2"), is(0));
+                root("_links.service.href[%d]").
+                body(withArgs(0), startsWithPath("_links.self.href").and(endsWith("id1"))).
+                body(withArgs(1), startsWithPath("_links.self.href").and(endsWith("id2")));
     }
 
     @Test public void
-    services_returns_meta_data_for_each_service_if_defined() {
+    service_returns_data_for_each_service_but_excludes_meta_and_supplement_when_they_dont_exist() {
         // Given
-        givenServiceIsRegistered("id1", "service1", "Service Creator 1", "http://some-url.com/service1", "http://source1.com", meta("type", "nice"), meta("ttl", "2"));
-        givenServiceIsRegistered("id2", "service2", "Service Creator 2", "http://some-url.com/service2", "http://source2.com", meta("type", "not-nice"), meta("other", "stuff"), meta("x", "y"));
-
+        givenServiceIsRegistered("id1", "service1", "Service Creator 1", "http://some-url.com/service1", "http://source1.com");
+        givenServiceIsRegistered("id2", "service2", "Service Creator 2", "http://some-url.com/service2", "http://source2.com");
         String servicesLink = get().then().extract().path("_links.services.href");
+        String linkToService2 = get(servicesLink).then().extract().path("_links.service.href.find { it.endsWith('%s') }", "id2");
 
         // When
-        given().
-                auth().principal(new ServiceRegistryUser("johan.haleby@gmail.com", "Johan", "Haleby")).
         when().
-                get(servicesLink).
+                get(linkToService2).
         then().
                 statusCode(200).
-                root("_links.service.find { it.name == '%s'}").
-                body("meta", withArgs("service1"), allOf(hasEntry("type", "nice"), hasEntry("ttl", "2"))).
-                body("meta", withArgs("service2"), allOf(hasEntry("type", "not-nice"), hasEntry("other", "stuff"), hasEntry("x", "y")));
+                body("serviceId", equalTo("id2")).
+                body("description", equalTo("service2")).
+                body("serviceUrl", equalTo("http://some-url.com/service2")).
+                body("sourceUrl", equalTo("http://source2.com")).
+                body("any { it.key == 'meta' }", is(false)).
+                body("any { it.key == 'supplement' }", is(false));
     }
 
+    @Test public void
+    service_includes_link_to_self() {
+        // Given
+        givenServiceIsRegistered("id2", "service2", "Service Creator 2", "http://some-url.com/service2", "http://source2.com");
+        String servicesLink = get().then().extract().path("_links.services.href");
+        String linkToService = get(servicesLink).then().extract().path("_links.service.href");
+
+        // When
+        when().
+                get(linkToService).
+        then().
+                statusCode(200).
+                body("_links.self.href", endsWithPath("serviceId").and(startsWith("http://localhost/services/")));
+    }
+
+    @Test public void
+    service_includes_meta_and_supplement_when_defined() {
+        // Given
+        givenServiceIsRegistered("id2", "service2", "Service Creator 2", "http://some-url.com/service2", "http://source2.com", meta("type", "not-nice"),
+                supplement("other", "stuff"), meta("x", "y"));
+        String servicesLink = get().then().extract().path("_links.services.href");
+        String linkToService = get(servicesLink).then().extract().path("_links.service.href");
+
+        // When
+        when().
+                get(linkToService).
+        then().
+                statusCode(200).
+                body("supplement", hasEntry("other", "stuff")).
+                body("meta", allOf(hasEntry("type", "not-nice"), hasEntry("x", "y")));
+    }
+
+    @Test public void
+    service_resource_returns_400_when_requested_service_is_not_registered() {
+        // When
+        when().
+                get("/services/id9").
+        then().
+                statusCode(400).
+                body("reason", equalTo("Cannot find service with serviceId id9"));
+    }
 
     @SafeVarargs
-    private final Service givenServiceIsRegistered(String id, String name, String creator, String serviceUrl, String sourceUrl, Map.Entry<String, Object>... meta) {
+    private final Service givenServiceIsRegistered(String id, String name, String creator, String serviceUrl, String sourceUrl, ImmutablePair<String, ImmutablePair<String, Object>>... data) {
         Service service = new Service(id, name, creator, serviceUrl, sourceUrl);
-        if(meta != null && meta.length > 0) {
+        if(data != null && data.length > 0) {
             Map<String, Object> metaMap = new HashMap<>();
-            for (Map.Entry<String, Object> entry : meta) {
-                metaMap.put(entry.getKey(), entry.getValue());
+            Map<String, Object> supplementMap = new HashMap<>();
+
+            for (ImmutablePair<String, ImmutablePair<String, Object>> entry : data) {
+                String tag = entry.getLeft();
+                ImmutablePair<String, Object> pair = entry.getRight();
+                switch (tag) {
+                    case "meta":
+                        metaMap.put(pair.getLeft(), pair.getRight());
+                        break;
+                    case "supplement":
+                        supplementMap.put(pair.getLeft(), pair.getRight());
+                        break;
+                }
             }
             service.setMeta(metaMap);
+            service.setOptionalProperties(supplementMap);
         }
         return serviceRepository.save(service);
     }
 
-    private static Map.Entry<String, Object> meta(String name, Object value) {
-        return new ImmutablePair<>(name, value);
+    private static ImmutablePair<String, ImmutablePair<String, Object>> meta(String name, Object value) {
+        return new ImmutablePair<>("meta", new ImmutablePair<>(name, value));
+    }
+
+    private static ImmutablePair<String, ImmutablePair<String, Object>> supplement(String name, Object value) {
+        return new ImmutablePair<>("supplement", new ImmutablePair<>(name, value));
     }
 }
