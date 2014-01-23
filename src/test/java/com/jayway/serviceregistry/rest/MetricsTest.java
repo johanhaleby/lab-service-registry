@@ -30,8 +30,8 @@ public class MetricsTest {
         when().
                 get("/metrics").
         then().
-                body("mem", greaterThan(0.0f)).
-                body("processors", greaterThanOrEqualTo(1.0f));
+                body("mem", greaterThan(0)).
+                body("processors", greaterThanOrEqualTo(1));
     }
     // @formatter:on
 }
