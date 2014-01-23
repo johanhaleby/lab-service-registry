@@ -26,7 +26,7 @@ public class ServiceOnlineEventErrorReceiverTest {
     @Test public void
     publishes_error_log_when_service_online_event_message_body_is_not_defined() {
         // Given
-        Map<String,Object> event = Messages.serviceOnlineEvent("id", "name", "entryPoint", "creator");
+        Map<String,Object> event = Messages.serviceOnlineEvent("id", "description", "creator" ,"serviceUrl", "sourceUrl");
         event.remove("body");
 
         // When
@@ -39,7 +39,7 @@ public class ServiceOnlineEventErrorReceiverTest {
     @Test public void
     publishes_error_log_when_service_online_event_message_body_is_not_defined_correctly() {
         // Given
-        Map<String,Object> event = Messages.serviceOnlineEvent("id", "name", "entryPoint", "creator");
+        Map<String,Object> event = Messages.serviceOnlineEvent("id", "description", "creator" ,"serviceUrl", "sourceUrl");
         event.put("body", "something");
 
         // When
@@ -52,7 +52,7 @@ public class ServiceOnlineEventErrorReceiverTest {
     @Test public void
     publishes_error_log_when_service_online_event_doesnt_specify_stream_id() {
         // Given
-        Map<String,Object> event = Messages.serviceOnlineEvent("id", "name", "entryPoint", "creator");
+        Map<String,Object> event = Messages.serviceOnlineEvent("id", "description", "creator" ,"serviceUrl", "sourceUrl");
         event.remove("streamId");
 
         // When
@@ -65,7 +65,7 @@ public class ServiceOnlineEventErrorReceiverTest {
     @Test public void
     publishes_error_log_when_service_online_event_specifies_stream_id_as_int() {
         // Given
-        Map<String,Object> event = Messages.serviceOnlineEvent("id", "name", "entryPoint", "creator");
+        Map<String,Object> event = Messages.serviceOnlineEvent("id", "description", "creator" ,"serviceUrl", "sourceUrl");
         event.put("streamId", 2);
 
         // When
@@ -76,10 +76,23 @@ public class ServiceOnlineEventErrorReceiverTest {
     }
 
     @Test public void
-    publishes_error_log_when_service_online_event_body_doesnt_specify_name() {
+    publishes_error_log_when_service_online_event_body_doesnt_specify_description() {
         // Given
-        Map<String,Object> event = Messages.serviceOnlineEvent("id", "name", "entryPoint", "creator");
-        ((Map) event.get("body")).remove("name");
+        Map<String,Object> event = Messages.serviceOnlineEvent("id", "description", "creator" ,"serviceUrl", "sourceUrl");
+        ((Map) event.get("body")).remove("description");
+
+        // When
+        tested.handleMessage(event);
+
+        // Then
+        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+    }
+    
+    @Test public void
+    publishes_error_log_when_service_online_event_body_doesnt_specify_source_url() {
+        // Given
+        Map<String,Object> event = Messages.serviceOnlineEvent("id", "description", "creator" ,"serviceUrl", "sourceUrl");
+        ((Map) event.get("body")).remove("sourceUrl");
 
         // When
         tested.handleMessage(event);
@@ -91,7 +104,7 @@ public class ServiceOnlineEventErrorReceiverTest {
     @Test public void
     publishes_error_log_when_service_online_event_body_doesnt_specify_created_by() {
         // Given
-        Map<String,Object> event = Messages.serviceOnlineEvent("id", "name", "entryPoint", "creator");
+        Map<String,Object> event = Messages.serviceOnlineEvent("id", "description", "creator" ,"serviceUrl", "sourceUrl");
         ((Map) event.get("body")).remove("createdBy");
 
         // When
@@ -104,8 +117,8 @@ public class ServiceOnlineEventErrorReceiverTest {
     @Test public void
     publishes_error_log_when_service_online_event_body_doesnt_specify_entry_point() {
         // Given
-        Map<String,Object> event = Messages.serviceOnlineEvent("id", "name", "entryPoint", "creator");
-        ((Map) event.get("body")).remove("entryPoint");
+        Map<String,Object> event = Messages.serviceOnlineEvent("id", "description", "creator" ,"serviceUrl", "sourceUrl");
+        ((Map) event.get("body")).remove("serviceUrl");
 
         // When
         tested.handleMessage(event);
@@ -117,7 +130,7 @@ public class ServiceOnlineEventErrorReceiverTest {
     @Test public void
     publishes_error_log_when_service_online_event_meta_is_not_of_a_json_object() {
         // Given
-        Map<String,Object> event = Messages.serviceOnlineEvent("id", "name", "entryPoint", "creator");
+        Map<String,Object> event = Messages.serviceOnlineEvent("id", "description", "creator" ,"serviceUrl", "sourceUrl");
         event.put("meta", 2);
 
         // When
@@ -130,7 +143,7 @@ public class ServiceOnlineEventErrorReceiverTest {
     @Test public void
     doesnt_publish_error_log_when_service_online_event_meta_is_missing() {
         // Given
-        Map<String,Object> event = Messages.serviceOnlineEvent("id", "name", "entryPoint", "creator");
+        Map<String,Object> event = Messages.serviceOnlineEvent("id", "description", "creator" ,"serviceUrl", "sourceUrl");
         event.remove("meta");
 
         // When

@@ -70,8 +70,8 @@ public class ServiceRegistryControllerTest {
     @Test public void
     services_returns_links_to_defined_services_and_self() {
         // Given
-        givenServiceIsRegistered("id1", "service1", "Service Creator 1", "http://some-url.com/service1");
-        givenServiceIsRegistered("id2", "service2", "Service Creator 2", "http://some-url.com/service2");
+        givenServiceIsRegistered("id1", "service1", "Service Creator 1", "http://some-url.com/service1", "http://source1.com");
+        givenServiceIsRegistered("id2", "service2", "Service Creator 2", "http://some-url.com/service2", "http://source2.com");
 
         String servicesLink = get().then().extract().path("_links.services.href");
 
@@ -97,8 +97,8 @@ public class ServiceRegistryControllerTest {
     @Test public void
     services_returns_meta_data_for_each_service_if_defined() {
         // Given
-        givenServiceIsRegistered("id1", "service1", "Service Creator 1", "http://some-url.com/service1", meta("type", "nice"), meta("ttl", "2"));
-        givenServiceIsRegistered("id2", "service2", "Service Creator 2", "http://some-url.com/service2", meta("type", "not-nice"), meta("other", "stuff"), meta("x", "y"));
+        givenServiceIsRegistered("id1", "service1", "Service Creator 1", "http://some-url.com/service1", "http://source1.com", meta("type", "nice"), meta("ttl", "2"));
+        givenServiceIsRegistered("id2", "service2", "Service Creator 2", "http://some-url.com/service2", "http://source2.com", meta("type", "not-nice"), meta("other", "stuff"), meta("x", "y"));
 
         String servicesLink = get().then().extract().path("_links.services.href");
 
@@ -116,8 +116,8 @@ public class ServiceRegistryControllerTest {
 
 
     @SafeVarargs
-    private final Service givenServiceIsRegistered(String id, String name, String creator, String entryPoint, Map.Entry<String, Object>... meta) {
-        Service service = new Service(id, name, creator, entryPoint);
+    private final Service givenServiceIsRegistered(String id, String name, String creator, String serviceUrl, String sourceUrl, Map.Entry<String, Object>... meta) {
+        Service service = new Service(id, name, creator, serviceUrl, sourceUrl);
         if(meta != null && meta.length > 0) {
             Map<String, Object> metaMap = new HashMap<>();
             for (Map.Entry<String, Object> entry : meta) {

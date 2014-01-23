@@ -27,15 +27,16 @@ public class Messages {
         return createMessage(gameId, GAME_ENDED_EVENT, body, new HashMap<String, Object>());
     }
 
-    public static Map<String, Object> serviceOnlineEvent(String serviceId, String name, String entryPoint, String createdBy) {
-        return serviceOnlineEvent(serviceId, name, entryPoint, createdBy, new HashMap<String, Object>());
+    public static Map<String, Object> serviceOnlineEvent(String serviceId, String description, String createdBy, String serviceUrl, String sourceUrl) {
+        return serviceOnlineEvent(serviceId, description, createdBy, serviceUrl, sourceUrl, new HashMap<String, Object>());
     }
 
-    public static Map<String, Object> serviceOnlineEvent(String serviceId, String name, String entryPoint, String createdBy, Map<String, Object> meta) {
+    public static Map<String, Object> serviceOnlineEvent(String serviceId, String description, String createdBy, String serviceUrl, String sourceUrl, Map<String, Object> meta) {
         Map<String, Object> body = new HashMap<>();
-        body.put("name", name);
+        body.put("description", description);
         body.put("createdBy", createdBy);
-        body.put("entryPoint", entryPoint);
+        body.put("serviceUrl", serviceUrl);
+        body.put("sourceUrl", sourceUrl);
 
         return createMessage(serviceId, SERVICE_ONLINE_EVENT, body, meta);
     }

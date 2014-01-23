@@ -71,7 +71,7 @@ public class ServiceMessageReceiver {
             serviceRepository.save(service);
         } catch (DuplicateKeyException e) {
             // Allows for idempotency
-            log.debug("A service was already registered with name {}", service.getName());
+            logError(service.getServiceId(), format("A service was already registered with name %s.", service.getDescription()));
         }
     }
 
@@ -79,28 +79,28 @@ public class ServiceMessageReceiver {
     private Service toService(Map map) {
         String streamId = getStringOrLogError(map, "streamId", SERVICE_ONLINE_EVENT + " is missing attribute streamId.");
 
-        Object body = map.get("body");
-        if (body == null) {
+        Object potentialBody = map.get("body");
+        if (potentialBody == null) {
             logError(map, "Body was undefined in " + SERVICE_ONLINE_EVENT + " with streamId " + streamId);
         }
 
-        if (!(body instanceof Map)) {
+        if (!(potentialBody instanceof Map)) {
             logError(map, "Body was not defined correctly in " + SERVICE_ONLINE_EVENT + " with streamId " + streamId);
         }
 
-        Map serviceOnlineEvent = ((Map) body);
-        String name = getStringOrLogError(serviceOnlineEvent, "name", format("The body of event %s with streamId %s is missing attribute 'name'.", SERVICE_ONLINE_EVENT, streamId));
-        String createdBy = getStringOrLogError(serviceOnlineEvent, "createdBy", format("The body of event %s with streamId %s is missing attribute 'createdBy'.", SERVICE_ONLINE_EVENT, streamId));
-        String entryPoint = getStringOrLogError(serviceOnlineEvent, "entryPoint", format("The body of event %s with streamId %s is missing attribute 'entryPoint'", SERVICE_ONLINE_EVENT, streamId));
+        Map<String, Object> body = ((Map<String, Object>) potentialBody);
+        getStringOrLogError(body, "description", format("The body of event %s with streamId %s is missing attribute 'description'.", SERVICE_ONLINE_EVENT, streamId));
+        getStringOrLogError(body, "createdBy", format("The body of event %s with streamId %s is missing attribute 'createdBy'.", SERVICE_ONLINE_EVENT, streamId));
+        getStringOrLogError(body, "serviceUrl", format("The body of event %s with streamId %s is missing attribute 'serviceUrl'", SERVICE_ONLINE_EVENT, streamId));
+        getStringOrLogError(body, "sourceUrl", format("The body of event %s with streamId %s is missing attribute 'sourceUrl'", SERVICE_ONLINE_EVENT, streamId));
 
-        Object meta = getOrDefault(map, "meta", new HashMap<String, Object>());
-        if (!(meta instanceof Map)) {
-            logError(map, format("The meta part of event %s with streamId %s is not defined correctly. Was %s but required is JSON object (Map).", SERVICE_ONLINE_EVENT, streamId, meta == null ? null : meta.getClass().getSimpleName()));
+        Object potentialMeta = getOrDefault(map, "meta", new HashMap<String, Object>());
+        if (!(potentialMeta instanceof Map)) {
+            logError(map, format("The meta part of event %s with streamId %s is not defined correctly. Was %s but required is JSON object (Map).", SERVICE_ONLINE_EVENT, streamId, potentialMeta == null ? null : potentialMeta.getClass().getSimpleName()));
         }
+        Map<String, Object> meta = (Map<String, Object>) potentialMeta;
 
-        Service service = new Service(streamId, name, createdBy, entryPoint);
-        service.setMeta((Map<String, Object>) meta);
-        return service;
+        return new Service(streamId, body, meta);
     }
 
     // This method will be available in the Map interface in Java 8.
@@ -158,6 +158,4 @@ public class ServiceMessageReceiver {
             super(message);
         }
     }
-
-
 }

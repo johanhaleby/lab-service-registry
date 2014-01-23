@@ -36,24 +36,25 @@ public class SendAndReceiveServiceMessagesTest {
     @Before @After
     public void
     drop_mongo_service_collection() throws Exception {
-       serviceRepository.deleteAll();
+        serviceRepository.deleteAll();
     }
 
     @Test public void
     service_online_event_without_meta_causes_a_new_service_to_be_registered_in_the_service_repository() throws Exception {
         // Given
         String serviceId = UUID.randomUUID().toString();
-        Map<String,Object> message = Messages.serviceOnlineEvent(serviceId, "service1", "http://someurl1.com", "Johan");
+        Map<String,Object> message = Messages.serviceOnlineEvent(serviceId, "service1", "Johan", "http://someurl1.com", "http://source1.com");
 
         // When
         messageSender.sendMessage(Topic.SERVICE, message);
 
         // Then
         await().atMost(5, SECONDS).untilCall(to(serviceRepository).count(), is(1L));
-        Service service = serviceRepository.findByName("service1");
+        Service service = serviceRepository.findOne(serviceId);
 
-        assertThat(service.getName()).isEqualTo("service1");
-        assertThat(service.getEntryPoint()).isEqualTo("http://someurl1.com");
+        assertThat(service.getDescription()).isEqualTo("service1");
+        assertThat(service.getServiceUrl()).isEqualTo("http://someurl1.com");
+        assertThat(service.getSourceUrl()).isEqualTo("http://source1.com");
         assertThat(service.getServiceId()).isEqualTo(serviceId);
         assertThat(service.getCreatedBy()).isEqualTo("Johan");
     }
@@ -65,17 +66,17 @@ public class SendAndReceiveServiceMessagesTest {
         Map<String, Object> meta = new HashMap<>();
         meta.put("type", "nice-service");
         meta.put("ttl", "42 hours");
-        Map<String,Object> message = Messages.serviceOnlineEvent(serviceId, "service1", "http://someurl1.com", "Johan", meta);
+        Map<String,Object> message = Messages.serviceOnlineEvent(serviceId, "service1", "Johan", "http://someurl1.com", "http://source.com", meta);
 
         // When
         messageSender.sendMessage(Topic.SERVICE, message);
 
         // Then
         await().atMost(5, SECONDS).untilCall(to(serviceRepository).count(), is(1L));
-        Service service = serviceRepository.findByName("service1");
+        Service service = serviceRepository.findOne(serviceId);
 
-        assertThat(service.getName()).isEqualTo("service1");
-        assertThat(service.getEntryPoint()).isEqualTo("http://someurl1.com");
+        assertThat(service.getDescription()).isEqualTo("service1");
+        assertThat(service.getServiceUrl()).isEqualTo("http://someurl1.com");
         assertThat(service.getServiceId()).isEqualTo(serviceId);
         assertThat(service.getCreatedBy()).isEqualTo("Johan");
         assertThat(service.getMeta()).containsEntry("type", "nice-service").containsEntry("ttl", "42 hours").hasSize(2);
@@ -84,8 +85,8 @@ public class SendAndReceiveServiceMessagesTest {
     @Test public void
     service_offline_event_causes_the_service_to_be_unregistered_from_the_service_repository() throws Exception {
         // Given
-        Service service1 = new Service("service1", "Johan", "http://someurl1.com");
-        Service service2 = new Service("service2", "Johan", "http://someurl2.com");
+        Service service1 = new Service("service1", "My Service 1", "Johan", "http://someurl1.com", "http://source1.com");
+        Service service2 = new Service("service2", "My Service 2", "Johan", "http://someurl2.com", "http://source1.com");
         serviceRepository.save(service1);
         serviceRepository.save(service2);
 
@@ -95,7 +96,7 @@ public class SendAndReceiveServiceMessagesTest {
         messageSender.sendMessage(Topic.SERVICE, message);
 
         // Then
-        await().atMost(5, SECONDS).untilCall(to(serviceRepository).findByName("service1"), nullValue());
-        assertThat(serviceRepository.findByName("service2")).isNotNull();
+        await().atMost(5, SECONDS).untilCall(to(serviceRepository).findOne("service1"), nullValue());
+        assertThat(serviceRepository.findOne("service2")).isNotNull();
     }
 }

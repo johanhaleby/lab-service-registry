@@ -28,8 +28,8 @@ class ServiceLink extends Link {
     }
 
     ServiceLink(Service service, String username) {
-        super(username == null ? service.getEntryPoint() : UriComponentsBuilder.fromHttpUrl(service.getEntryPoint()).queryParam("username", username).build().toUriString(), SERVICE_REL);
-        this.name = service.getName();
+        super(username == null ? service.getServiceUrl() : UriComponentsBuilder.fromHttpUrl(service.getServiceUrl()).queryParam("username", username).build().toUriString(), SERVICE_REL);
+        this.name = service.getDescription();
         this.createdBy = service.getCreatedBy();
         this.streamId = service.getServiceId();
         this.meta = service.getMeta();

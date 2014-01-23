@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -33,10 +32,10 @@ public class ServiceRepositoryTest {
     @Test public void
     finds_services_by_name() {
         // Given
-        Service savedService = serviceRepository.save(new Service("my-service", "Johan", "http://www.google.com"));
+        Service savedService = serviceRepository.save(new Service("my-service", "Description", "Johan", "http://www.google.com", "<hidden>"));
 
         // When
-        Service foundService = serviceRepository.findByName("my-service");
+        Service foundService = serviceRepository.findOne("my-service");
 
         // Then
         assertThat(foundService).isEqualTo(savedService);
@@ -45,28 +44,15 @@ public class ServiceRepositoryTest {
     @Test public void
     finds_services_by_creator() {
         // Given
-        Service savedService1 = serviceRepository.save(new Service("my-service1", "Johan", "http://www.google.com"));
-        Service savedService2 = serviceRepository.save(new Service("my-service2", "Johan", "http://www.google.com/search?q=my-service2"));
-        serviceRepository.save(new Service("my-service3", "Someone Else", "http://www.google.com/search?q=my-service3"));
+        Service savedService1 = serviceRepository.save(new Service("my-service1", "Description 1", "Johan", "http://www.google.com", "http://someurl.com"));
+        Service savedService2 = serviceRepository.save(new Service("my-service2", "Description 2", "Johan", "http://www.google.com/search?q=my-service2", "http://someurl2.com"));
+        serviceRepository.save(new Service("my-service3", "Description 2", "Someone Else", "http://www.google.com/search?q=my-service3", "http://someurl3.com"));
 
         // When
-        List<Service> foundServices = serviceRepository.findByCreatedBy("Johan");
+        List<Service> foundServices = serviceRepository.findByCreator("Johan");
 
         // Then
         assertThat(foundServices).containsOnlyOnce(savedService1, savedService2);
-    }
-
-    @Test public void
-    saving_two_services_with_same_name_throws_duplicate_key_exception() {
-        exception.expect(DuplicateKeyException.class);
-
-        // Given
-        Service service1 = serviceRepository.save(new Service("my-service1", "Johan", "http://www.google.com"));
-        Service service2 = serviceRepository.save(new Service("my-service1", "Johan2", "http://www.google.com"));
-        serviceRepository.save(service1);
-
-        // When
-        serviceRepository.save(service2);
     }
 
     @Test public void
