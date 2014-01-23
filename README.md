@@ -34,7 +34,7 @@ ServiceOnlineEvent
 	"type":"object",
 	"$schema": "http://json-schema.org/draft-03/schema",
 	"id": "http://jsonschema.net",
-	"required":true,
+	"required":false,
 	"properties":{
 		"body": {
 			"type":"object",
@@ -46,14 +46,19 @@ ServiceOnlineEvent
 					"id": "http://jsonschema.net/body/createdBy",
 					"required":true
 				},
-				"entryPoint": {
+				"description": {
 					"type":"string",
-					"id": "http://jsonschema.net/body/entryPoint",
+					"id": "http://jsonschema.net/body/description",
 					"required":true
 				},
-				"name": {
+				"serviceUrl": {
 					"type":"string",
-					"id": "http://jsonschema.net/body/name",
+					"id": "http://jsonschema.net/body/serviceUrl",
+					"required":true
+				},
+				"sourceUrl": {
+					"type":"string",
+					"id": "http://jsonschema.net/body/sourceUrl",
 					"required":true
 				}
 			}
@@ -61,6 +66,11 @@ ServiceOnlineEvent
 		"createdAt": {
 			"type":"number",
 			"id": "http://jsonschema.net/createdAt",
+			"required":true
+		},
+		"messageId": {
+			"type":"string",
+			"id": "http://jsonschema.net/messageId",
 			"required":true
 		},
 		"meta": {
@@ -87,15 +97,15 @@ Example:
 {
    "body":{
       "createdBy":"Johan",
-      "entryPoint":"http://someurl1.com",
-      "name":"service1"
+      "description":"This is the description of service1",
+      "sourceUrl":"http://source1.com",
+      "serviceUrl":"http://someurl1.com"
    },
-   "streamId":"bfa15a72-13c0-4908-ac90-d1ad8ebc281b",
-   "createdAt":1389971146921,
+   "streamId":"service1",
+   "createdAt":1390482313083,
+   "messageId":"7f44fbf2-c7a5-43f7-b364-af6b3c5fef39",
    "type":"ServiceOnlineEvent",
-   "meta":{
-
-   }
+   "meta":{ }
 }
 ```
 
@@ -125,6 +135,11 @@ ServiceOfflineEvent
 			"id": "http://jsonschema.net/streamId",
 			"required":true
 		},
+		"messageId": {
+            "type":"string",
+            "id": "http://jsonschema.net/messageId",
+            "required":true
+        },
 		"type": {
 			"type":"string",
 			"id": "http://jsonschema.net/type",
@@ -138,10 +153,9 @@ Example:
 ```javascript
 {
    "createdAt":1390290351389,
-   "streamId":"bfa15a72-13c0-4908-ac90-d1ad8ebc281b",
-   "meta":{
-
-   },
+   "streamId":"service1",
+   "meta":{ },
+   "messageId":"7f44fbf2-c7a5-43f7-b364-af62335fef39",
    "type":"ServiceOfflineEvent"
 }
 ```
