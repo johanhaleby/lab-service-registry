@@ -9,13 +9,12 @@ import static com.jayway.serviceregistry.messagebus.protocol.EventType.*;
 
 public class Messages {
 
-    public static Map<String, Object> gameCreatedEvent(String gameId, String createdBy, List<String> players) {
+    public static Map<String, Object> gameCreatedEvent(String gameId, String createdBy, String gameUrl, List<String> players) {
         Map<String, Object> body = new HashMap<>();
         body.put("createdBy", createdBy);
         body.put("players", players);
-        // TODO Externalize
         body.put("gameType", "rock-paper-scissors");
-        body.put("gameUrl", "http://rps.com/games/" + gameId);
+        body.put("gameUrl", gameUrl);
 
         return createMessage(gameId, GAME_CREATED_EVENT, body, new HashMap<String, Object>());
     }

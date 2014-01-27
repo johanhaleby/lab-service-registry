@@ -32,7 +32,7 @@ public class ServiceMessageReceiverTest {
     @Test public void
     publishes_error_log_when_no_message_type_is_defined() {
         // Given
-        Map<String,Object> event = Messages.gameCreatedEvent("game1", "Ikk", Collections.<String>emptyList());
+        Map<String,Object> event = Messages.gameCreatedEvent("game1", "Ikk", "url", Collections.<String>emptyList());
         event.remove("type");
 
         // When
