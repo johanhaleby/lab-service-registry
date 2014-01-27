@@ -13,6 +13,7 @@ public class Messages {
         Map<String, Object> body = new HashMap<>();
         body.put("createdBy", createdBy);
         body.put("players", players);
+        // TODO Externalize
         body.put("gameType", "rock-paper-scissors");
         body.put("gameUrl", "http://rps.com/games/" + gameId);
 

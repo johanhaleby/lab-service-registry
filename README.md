@@ -165,7 +165,7 @@ Other Events
 Other events declared in Lab but not consumed by Service Registry.
 
 ### LogEvent
-Example:
+
 ```javascript
 {
    "body":{
