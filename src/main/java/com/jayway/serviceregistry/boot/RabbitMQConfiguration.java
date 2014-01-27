@@ -107,6 +107,8 @@ class RabbitMQConfiguration {
         container.setConnectionFactory(rabbitConnectionFactory());
         container.setQueueNames(clientQueue(amqpAdmin).getName());
         container.setMessageListener(new MessageListenerAdapter(serviceMessageReceiver, jsonMessageConverter()));
+        // No acks will be sent (incompatible with channelTransacted=true). RabbitMQ calls this "autoack" because the broker assumes all messages are acked without any action from the consumer.
+        container.setAcknowledgeMode(AcknowledgeMode.NONE);
         return container;
     }
 
