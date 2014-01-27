@@ -1,7 +1,10 @@
 package com.jayway.serviceregistry.messagebus;
 
 import com.jayway.serviceregistry.domain.ServiceRepository;
+import com.jayway.serviceregistry.messagebus.protocol.LogLevel;
 import com.jayway.serviceregistry.messagebus.protocol.Messages;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -10,7 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Map;
 
-import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -33,7 +36,7 @@ public class ServiceOnlineEventErrorReceiverTest {
         tested.handleMessage(event);
 
         // Then
-        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+        verify(messageSender).sendMessage(eq(Topic.LOG), argThat(errorLog()));
     }
 
     @Test public void
@@ -45,7 +48,7 @@ public class ServiceOnlineEventErrorReceiverTest {
         tested.handleMessage(event);
 
         // Then
-        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+        verify(messageSender).sendMessage(eq(Topic.LOG), argThat(errorLog()));
     }
 
     @Test public void
@@ -58,7 +61,7 @@ public class ServiceOnlineEventErrorReceiverTest {
         tested.handleMessage(event);
 
         // Then
-        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+        verify(messageSender).sendMessage(eq(Topic.LOG), argThat(errorLog()));
     }
 
     @Test public void
@@ -71,7 +74,7 @@ public class ServiceOnlineEventErrorReceiverTest {
         tested.handleMessage(event);
 
         // Then
-        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+        verify(messageSender).sendMessage(eq(Topic.LOG), argThat(errorLog()));
     }
 
     @Test public void
@@ -84,7 +87,7 @@ public class ServiceOnlineEventErrorReceiverTest {
         tested.handleMessage(event);
 
         // Then
-        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+        verify(messageSender).sendMessage(eq(Topic.LOG), argThat(errorLog()));
     }
 
     @Test public void
@@ -97,7 +100,7 @@ public class ServiceOnlineEventErrorReceiverTest {
         tested.handleMessage(event);
 
         // Then
-        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+        verify(messageSender).sendMessage(eq(Topic.LOG), argThat(errorLog()));
     }
     
     @Test public void
@@ -110,7 +113,7 @@ public class ServiceOnlineEventErrorReceiverTest {
         tested.handleMessage(event);
 
         // Then
-        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+        verify(messageSender).sendMessage(eq(Topic.LOG), argThat(errorLog()));
     }
 
     @Test public void
@@ -123,7 +126,7 @@ public class ServiceOnlineEventErrorReceiverTest {
         tested.handleMessage(event);
 
         // Then
-        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+        verify(messageSender).sendMessage(eq(Topic.LOG), argThat(errorLog()));
     }
 
     @Test public void
@@ -136,7 +139,7 @@ public class ServiceOnlineEventErrorReceiverTest {
         tested.handleMessage(event);
 
         // Then
-        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+        verify(messageSender).sendMessage(eq(Topic.LOG), argThat(errorLog()));
     }
 
     @Test public void
@@ -149,7 +152,7 @@ public class ServiceOnlineEventErrorReceiverTest {
         tested.handleMessage(event);
 
         // Then
-        verify(messageSender).sendMessage(eq(Topic.LOG), anyMap());
+        verify(messageSender).sendMessage(eq(Topic.LOG), argThat(errorLog()));
     }
 
     @Test public void
@@ -162,7 +165,24 @@ public class ServiceOnlineEventErrorReceiverTest {
         tested.handleMessage(event);
 
         // Then
-        verify(messageSender, never()).sendMessage(eq(Topic.LOG), anyMap());
+        verify(messageSender, never()).sendMessage(eq(Topic.LOG), argThat(errorLog()));
     }
     // @formatter:on
+
+    private TypeSafeMatcher<Map<String, Object>> errorLog() {
+        return new TypeSafeMatcher<Map<String, Object>>() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            protected boolean matchesSafely(Map<String, Object> item) {
+                Map<String, Object> body = (Map<String, Object>) item.get("body");
+                return LogLevel.ERROR.equals(body.get("level"));
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("was not error log message");
+            }
+        };
+    }
 }
