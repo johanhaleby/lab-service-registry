@@ -2,8 +2,10 @@ package com.jayway.serviceregistry.boot;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.serviceregistry.messagebus.MessageSender;
 import com.jayway.serviceregistry.messagebus.ServiceMessageReceiver;
 import com.jayway.serviceregistry.messagebus.Topic;
+import com.jayway.serviceregistry.messagebus.protocol.Messages;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -21,9 +23,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
+import static com.jayway.serviceregistry.messagebus.Topic.LOG;
+import static com.jayway.serviceregistry.messagebus.protocol.LogLevel.ERROR;
 import static org.apache.commons.lang3.StringUtils.*;
 
 /**
@@ -58,8 +62,8 @@ class RabbitMQConfiguration {
     }
 
     @Bean
-    public MessageConverter jsonMessageConverter() {
-        return new LabMessageConverter();
+    public MessageConverter jsonMessageConverter(MessageSender messageSender) {
+        return new LabMessageConverter(messageSender);
     }
 
     @Bean
@@ -106,7 +110,7 @@ class RabbitMQConfiguration {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(rabbitConnectionFactory());
         container.setQueueNames(clientQueue(amqpAdmin).getName());
-        container.setMessageListener(new MessageListenerAdapter(serviceMessageReceiver, jsonMessageConverter()));
+        container.setMessageListener(new MessageListenerAdapter(serviceMessageReceiver, messageConverter));
         // No acks will be sent (incompatible with channelTransacted=true). RabbitMQ calls this "autoack" because the broker assumes all messages are acked without any action from the consumer.
         container.setAcknowledgeMode(AcknowledgeMode.NONE);
         return container;
@@ -215,6 +219,12 @@ class RabbitMQConfiguration {
      */
     private static class LabMessageConverter implements MessageConverter {
         final ObjectMapper objectMapper = new ObjectMapper();
+        private final MessageSender messageSender;
+
+        public LabMessageConverter(MessageSender messageSender) {
+            this.messageSender = messageSender;
+        }
+
 
         @Override
         public Message toMessage(Object object, MessageProperties messageProperties) throws MessageConversionException {
@@ -232,7 +242,11 @@ class RabbitMQConfiguration {
         public Object fromMessage(Message message) throws MessageConversionException {
             try {
                 return objectMapper.readValue(message.getBody(), Map.class);
-            } catch (IOException e) {
+            } catch (Exception e) {
+                try {
+                    messageSender.sendMessage(LOG, Messages.logEvent(ERROR, "service-registry", "Couldn't parse message: " + StringUtils.toString(message.getBody(), "UTF-8")));
+                } catch (UnsupportedEncodingException ignored) {
+                }
                 throw new RuntimeException(e);
             }
         }
