@@ -45,6 +45,9 @@ public class ServiceMessageReceiver {
      * Called by Spring in a magic way (from a {@link org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter}.
      */
     public void handleMessage(Object object) {
+        if (object == null) {
+            return;
+        }
         log.debug("Received {}", object);
 
         if (!(object instanceof Map)) {

@@ -20,7 +20,7 @@ import static com.jayway.awaitility.Awaitility.await;
 import static com.jayway.awaitility.Awaitility.to;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -49,8 +49,7 @@ public class SendAndReceiveServiceMessagesTest {
         messageSender.sendMessage(Topic.SERVICE, message);
 
         // Then
-        await().atMost(5, SECONDS).untilCall(to(serviceRepository).count(), is(1L));
-        Service service = serviceRepository.findOne(serviceId);
+        Service service = await().atMost(5, SECONDS).untilCall(to(serviceRepository).findOne(serviceId), notNullValue());
 
         assertThat(service.getDescription()).isEqualTo("service1");
         assertThat(service.getServiceUrl()).isEqualTo("http://someurl1.com");
@@ -73,8 +72,7 @@ public class SendAndReceiveServiceMessagesTest {
         messageSender.sendMessage(Topic.SERVICE, message);
 
         // Then
-        await().atMost(5, SECONDS).untilCall(to(serviceRepository).count(), is(1L));
-        Service service = serviceRepository.findOne(serviceId);
+        Service service = await().atMost(5, SECONDS).untilCall(to(serviceRepository).findOne(serviceId), notNullValue());
 
         assertThat(service.getDescription()).isEqualTo("service1");
         assertThat(service.getServiceUrl()).isEqualTo("http://someurl1.com");

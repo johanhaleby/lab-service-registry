@@ -244,10 +244,14 @@ class RabbitMQConfiguration {
                 return objectMapper.readValue(message.getBody(), Map.class);
             } catch (Exception e) {
                 try {
-                    messageSender.sendMessage(LOG, Messages.logEvent(ERROR, "service-registry", "Couldn't parse message: " + StringUtils.toString(message.getBody(), "UTF-8")));
-                } catch (UnsupportedEncodingException ignored) {
+                    String messageAsString = StringUtils.toString(message.getBody(), "UTF-8");
+                    messageSender.sendMessage(LOG, Messages.logEvent(ERROR, "service-registry", "Couldn't parse message: " + messageAsString));
+                    log.info("Erroneous message received: " + messageAsString);
+                } catch (UnsupportedEncodingException uee) {
+                    log.info("Erroneous message with invalid encoding received.");
+                    messageSender.sendMessage(LOG, Messages.logEvent(ERROR, "service-registry", "Couldn't parse message since it was invalid and not encoded as UTF-8"));
                 }
-                throw new RuntimeException(e);
+                return null;
             }
         }
     }
