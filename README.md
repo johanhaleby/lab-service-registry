@@ -160,8 +160,11 @@ Example:
 }
 ```
 
-LogEvent
---------
+Other Events
+------------
+Other events declared in Lab but not consumed by Service Registry.
+
+### LogEvent
 Example:
 ```javascript
 {
@@ -179,5 +182,47 @@ Example:
 }
 ```
 
+### GameCreatedEvent
 
+```javascript
+{
+   "body":{
+      "gameUrl":"http://rps.com/games/ultimate-rps-1",
+      "gameType":"rock-paper-scissors",
+      "createdBy":"player1",
+      "players":[
+         "player1",
+         "player2"
+      ]
+   },
+   "streamId":"ultimate-rps-1",
+   "createdAt":1390820223272,
+   "messageId":"b1a4e0a7-a8d9-48a1-a196-636e560fe6bb",
+   "type":"GameCreatedEvent",
+   "meta":{
 
+   }
+}
+```
+
+### GameEndedEvent
+
+```javascript
+{
+   "body":{
+      "result":"true",
+      "gameType":"rock-paper-scissors",
+      "scores":{
+         "player1":10,
+         "player2":20
+      }
+   },
+   "streamId":"ultimate-rps-1",
+   "createdAt":1390820506016,
+   "messageId":"a494eef8-066b-4c1d-a645-6ef666c10e22",
+   "type":"GameEndedEvent",
+   "meta":{
+
+   }
+}
+```
