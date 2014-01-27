@@ -160,6 +160,24 @@ Example:
 }
 ```
 
+LogEvent
+--------
+Example:
+```javascript
+{
+   "body":{
+      "message":"My error message",
+      "level":"ERROR",
+      "context":"service-registry"
+   },
+   "createdAt":1390819324935,
+   "messageId":"3561f4a6-40a6-49e7-b3ef-676d0e819644",
+   "type":"LogEvent",
+   "meta":{
+
+   }
+}
+```
 
 
 
