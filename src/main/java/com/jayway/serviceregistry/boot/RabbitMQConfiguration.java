@@ -37,6 +37,7 @@ import static org.apache.commons.lang3.StringUtils.*;
 @Configuration
 class RabbitMQConfiguration {
     private static final Logger log = LoggerFactory.getLogger(RabbitMQConfiguration.class);
+    private static final String SERVICE_REGISTRY_CLIENT_QUEUE_NAME = "service-registry-queue";
 
     @Value("${amqp.connection.url:}")
     String amqpConnectionUri;
@@ -73,7 +74,10 @@ class RabbitMQConfiguration {
 
     @Bean
     public Queue clientQueue(AmqpAdmin amqpAdmin) {
-        return amqpAdmin.declareQueue(); // Perhaps it should be durable if we need to redeploy this app during the lab?
+        // We declare the queue as durable since we may need to redeploy the service during the lab session
+        Queue queue = new Queue(SERVICE_REGISTRY_CLIENT_QUEUE_NAME, true, false, true);
+        amqpAdmin.declareQueue(queue);
+        return queue;
     }
 
     /**
