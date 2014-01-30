@@ -62,7 +62,7 @@
         <dependency>
             <groupId>org.springframework.plugin</groupId>
             <artifactId>spring-plugin-core</artifactId>
-            <version>0.8.0.RELEASE</version>
+            <version>1.0.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
