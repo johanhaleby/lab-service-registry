@@ -25,129 +25,56 @@ heroku config:set MONGOHQ_URL="<mongodb_url>"
 
 Both URLs must contain username and password, port etc.
 
-ServiceOnlineEvent
-------------------
+Messages
+--------
+All messages requires the following message properties:
 
-[Schema:](http://json-schema.org/)
-```javascript
-{
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-03/schema",
-	"id": "http://jsonschema.net",
-	"required":true,
-	"properties":{
-		"body": {
-			"type":"object",
-			"id": "http://jsonschema.net/body",
-			"required":true,
-			"properties":{
-				"createdBy": {
-					"type":"string",
-					"id": "http://jsonschema.net/body/createdBy",
-					"required":true
-				},
-				"description": {
-					"type":"string",
-					"id": "http://jsonschema.net/body/description",
-					"required":true
-				},
-				"serviceUrl": {
-					"type":"string",
-					"id": "http://jsonschema.net/body/serviceUrl",
-					"required":true
-				},
-				"sourceUrl": {
-					"type":"string",
-					"id": "http://jsonschema.net/body/sourceUrl",
-					"required":true
-				}
-			}
-		},
-		"createdAt": {
-			"type":"number",
-			"id": "http://jsonschema.net/createdAt",
-			"required":true
-		},
-		"messageId": {
-			"type":"string",
-			"id": "http://jsonschema.net/messageId",
-			"required":true
-		},
-		"meta": {
-			"type":"object",
-			"id": "http://jsonschema.net/meta",
-			"required":false
-		},
-		"streamId": {
-			"type":"string",
-			"id": "http://jsonschema.net/streamId",
-			"required":true
-		},
-		"type": {
-			"type":"string",
-			"id": "http://jsonschema.net/type",
-			"required":true
-		}
-	}
-}
-```
+<table>
+    <th>Property</th>
+    <th>Description</th>
+    <tr>
+        <td>appId</td>
+        <td>The application id, for example "service-registry"</td>
+    </tr>
+    <tr>
+        <td>streamId</td>
+        <td>The id of the stream (aggregate id). May be equal to appId in some cases or a UUID.</td>
+    </tr>
+    <tr>
+        <td>timestamp</td>
+        <td>The timestamp indicating when the message was created</td>
+    </tr>
+    <tr>
+        <td>messageId</td>
+        <td>The id to uniquely define a particular message (UUID). Used for idempotency.</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>The type of the event, for example "ServiceOnlineEvent"</td>
+    </tr>
+</table>
+
+It's ok to add additional message properties.
+
+Different messages have different body properties that are required. It's ok to add additional properties to the body as well if needed.
+
+Messages consumed by Service Registry
+-------------------------------------
+
+### ServiceOnlineEvent
+Note that appId and streamId will be the same this event
 
 Example:
 ```javascript
 {
-   "body":{
-      "createdBy":"Johan",
-      "description":"This is the description of service1",
-      "sourceUrl":"http://source1.com",
-      "serviceUrl":"http://someurl1.com"
-   },
-   "streamId":"service1",
-   "createdAt":1390482313083,
-   "messageId":"7f44fbf2-c7a5-43f7-b364-af6b3c5fef39",
-   "type":"ServiceOnlineEvent",
-   "meta":{ }
+  "createdBy":"Johan",
+  "description":"This is the description of service1",
+  "sourceUrl":"http://source1.com",
+  "serviceUrl":"http://someurl1.com"
 }
 ```
 
-ServiceOfflineEvent
-------------------
-
-[Schema:](http://json-schema.org/)
-```javascript
-{
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-03/schema",
-	"id": "http://jsonschema.net",
-	"required":true,
-	"properties":{
-		"createdAt": {
-			"type":"number",
-			"id": "http://jsonschema.net/createdAt",
-			"required":true
-		},
-		"meta": {
-			"type":"object",
-			"id": "http://jsonschema.net/meta",
-			"required":false
-		},
-		"streamId": {
-			"type":"string",
-			"id": "http://jsonschema.net/streamId",
-			"required":true
-		},
-		"messageId": {
-            "type":"string",
-            "id": "http://jsonschema.net/messageId",
-            "required":true
-        },
-		"type": {
-			"type":"string",
-			"id": "http://jsonschema.net/type",
-			"required":true
-		}
-	}
-}
-```
+### ServiceOfflineEvent
 
 Example:
 ```javascript
@@ -166,63 +93,38 @@ Other events declared in Lab but not consumed by Service Registry.
 
 ### LogEvent
 
+Example:
 ```javascript
 {
-   "body":{
-      "message":"My error message",
-      "level":"ERROR",
-      "context":"service-registry"
-   },
-   "createdAt":1390819324935,
-   "messageId":"3561f4a6-40a6-49e7-b3ef-676d0e819644",
-   "type":"LogEvent",
-   "meta":{
-
-   }
+  "message":"My error message",
+  "level":"ERROR",
 }
 ```
 
 ### GameCreatedEvent
 
+Example:
 ```javascript
 {
-   "body":{
-      "gameUrl":"http://rps.com/games/ultimate-rps-1",
-      "gameType":"rock-paper-scissors",
-      "createdBy":"player1",
-      "players":[
-         "player1",
-         "player2"
-      ]
-   },
-   "streamId":"ultimate-rps-1",
-   "createdAt":1390820223272,
-   "messageId":"b1a4e0a7-a8d9-48a1-a196-636e560fe6bb",
-   "type":"GameCreatedEvent",
-   "meta":{
-
-   }
+  "gameUrl":"http://rps.com/games/ultimate-rps-1",
+  "gameType":"rock-paper-scissors",
+  "createdBy":"player1",
+  "players":[
+     "player1",
+     "player2"
+  ]
 }
 ```
 
 ### GameEndedEvent
 
+Example:
 ```javascript
 {
-   "body":{
-      "result":"true",
-      "gameType":"rock-paper-scissors",
-      "scores":{
-         "player1":10,
-         "player2":20
-      }
-   },
-   "streamId":"ultimate-rps-1",
-   "createdAt":1390820506016,
-   "messageId":"a494eef8-066b-4c1d-a645-6ef666c10e22",
-   "type":"GameEndedEvent",
-   "meta":{
-
-   }
+  "gameType":"rock-paper-scissors",
+  "scores":{
+     "player1":10,
+     "player2":20
+  }
 }
 ```
