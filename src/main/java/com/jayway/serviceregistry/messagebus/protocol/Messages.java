@@ -22,7 +22,6 @@ public class Messages {
     public static Map<String, Object> gameEndedEvent(String gameId, Map<String, Number> scores) {
         Map<String, Object> body = new HashMap<>();
         body.put("scores", scores);
-        body.put("result", "true");
         body.put("gameType", "rock-paper-scissors");
 
         return createMessage(gameId, GAME_ENDED_EVENT, body, new HashMap<String, Object>());
