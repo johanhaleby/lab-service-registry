@@ -27,7 +27,7 @@ Both URLs must contain username and password, port etc.
 
 Messages
 --------
-All messages requires the following message properties:
+All messages requires the following message properties (not defined in the body but rather as meta-data attached to each message):
 
 <table>
     <th>Property</th>
@@ -56,13 +56,15 @@ All messages requires the following message properties:
 
 It's ok to add additional message properties.
 
-Different messages have different body properties that are required. It's ok to add additional properties to the body as well if needed.
+Messages also have a body which are different for each message. It's ok to add additional properties to the body as well if needed.
 
 Messages consumed by Service Registry
 -------------------------------------
 
 ### ServiceOnlineEvent
-Note that appId and streamId will be the same this event
+Note that appId and streamId will be the same this event.
+
+Use streamId to specify the unique name of the service, must be human readable (no UUID).
 
 Example:
 ```javascript
