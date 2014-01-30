@@ -79,7 +79,6 @@ Example:
 Example:
 ```javascript
 {
-   "createdAt":1390290351389,
    "streamId":"service1",
    "messageId":"7f44fbf2-c7a5-43f7-b364-af62335fef39",
    "type":"ServiceOfflineEvent"
