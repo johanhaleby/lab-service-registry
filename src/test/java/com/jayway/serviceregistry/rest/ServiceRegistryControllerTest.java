@@ -4,7 +4,7 @@ import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import com.jayway.serviceregistry.boot.ServiceRegistryStart;
 import com.jayway.serviceregistry.domain.Service;
 import com.jayway.serviceregistry.domain.ServiceRepository;
-import com.jayway.serviceregistry.security.ServiceRegistryUser;
+import com.jayway.serviceregistry.infrastructure.security.ServiceRegistryUser;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.After;
 import org.junit.Before;
@@ -123,7 +123,7 @@ public class ServiceRegistryControllerTest {
     }
 
     @Test public void
-    service_includes_meta_and_supplement_when_defined() {
+    service_includes_supplement_when_defined_but_no_meta_even_when_defined() {
         // Given
         givenServiceIsRegistered("id2", "service2", "Service Creator 2", "http://some-url.com/service2", "http://source2.com", meta("type", "not-nice"),
                 supplement("other", "stuff"), meta("x", "y"));
@@ -136,7 +136,7 @@ public class ServiceRegistryControllerTest {
         then().
                 statusCode(200).
                 body("supplement", hasEntry("other", "stuff")).
-                body("meta", allOf(hasEntry("type", "not-nice"), hasEntry("x", "y")));
+                body("meta", nullValue());
     }
 
     @Test public void
@@ -168,8 +168,8 @@ public class ServiceRegistryControllerTest {
                         break;
                 }
             }
-            service.setMeta(metaMap);
-            service.setOptionalProperties(supplementMap);
+            service.setSupplementaryMetaProperties(metaMap);
+            service.setSupplementaryBodyProperties(supplementMap);
         }
         return serviceRepository.save(service);
     }

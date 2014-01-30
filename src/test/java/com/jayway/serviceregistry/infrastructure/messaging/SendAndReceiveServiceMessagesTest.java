@@ -1,9 +1,11 @@
-package com.jayway.serviceregistry.messagebus;
+package com.jayway.serviceregistry.infrastructure.messaging;
 
 import com.jayway.serviceregistry.boot.ServiceRegistryStart;
 import com.jayway.serviceregistry.domain.Service;
 import com.jayway.serviceregistry.domain.ServiceRepository;
-import com.jayway.serviceregistry.messagebus.protocol.Messages;
+import com.jayway.serviceregistry.infrastructure.messaging.protocol.Message;
+import com.jayway.serviceregistry.infrastructure.messaging.protocol.Messages;
+import com.jayway.serviceregistry.infrastructure.messaging.protocol.ServiceRegistry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +45,7 @@ public class SendAndReceiveServiceMessagesTest {
     service_online_event_without_meta_causes_a_new_service_to_be_registered_in_the_service_repository() throws Exception {
         // Given
         String serviceId = UUID.randomUUID().toString();
-        Map<String,Object> message = Messages.serviceOnlineEvent(serviceId, "service1", "Johan", "http://someurl1.com", "http://source1.com");
+        Message message = Messages.serviceOnline(serviceId, "service1", "Johan", "http://someurl1.com", "http://source1.com");
 
         // When
         messageSender.sendMessage(Topic.SERVICE, message);
@@ -56,7 +58,8 @@ public class SendAndReceiveServiceMessagesTest {
         assertThat(service.getSourceUrl()).isEqualTo("http://source1.com");
         assertThat(service.getServiceId()).isEqualTo(serviceId);
         assertThat(service.getCreatedBy()).isEqualTo("Johan");
-        assertThat(service.getOptionalProperties()).isEmpty();
+        assertThat(service.getSupplementaryBodyProperties()).isEmpty();
+        assertThat(service.getSupplementaryMetaProperties()).isEmpty();
     }
 
     @Test public void
@@ -64,9 +67,9 @@ public class SendAndReceiveServiceMessagesTest {
         // Given
         String serviceId = UUID.randomUUID().toString();
         Map<String, Object> meta = new HashMap<>();
-        meta.put("type", "nice-service");
+        meta.put("another-type", "nice-service");
         meta.put("ttl", "42 hours");
-        Map<String,Object> message = Messages.serviceOnlineEvent(serviceId, "service1", "Johan", "http://someurl1.com", "http://source.com", meta);
+        Message message = Messages.serviceOnline(serviceId, "service1", "Johan", "http://someurl1.com", "http://source.com", meta);
 
         // When
         messageSender.sendMessage(Topic.SERVICE, message);
@@ -78,8 +81,8 @@ public class SendAndReceiveServiceMessagesTest {
         assertThat(service.getServiceUrl()).isEqualTo("http://someurl1.com");
         assertThat(service.getServiceId()).isEqualTo(serviceId);
         assertThat(service.getCreatedBy()).isEqualTo("Johan");
-        assertThat(service.getMeta()).containsEntry("type", "nice-service").containsEntry("ttl", "42 hours").hasSize(2);
-        assertThat(service.getOptionalProperties()).isEmpty();
+        assertThat(service.getSupplementaryMetaProperties()).containsEntry("another-type", "nice-service").containsEntry("ttl", "42 hours").hasSize(2);
+        assertThat(service.getSupplementaryBodyProperties()).isEmpty();
     }
 
     @Test public void
@@ -90,7 +93,7 @@ public class SendAndReceiveServiceMessagesTest {
         serviceRepository.save(service1);
         serviceRepository.save(service2);
 
-        Map<String,Object> message = Messages.serviceOfflineEvent(service1.getServiceId());
+        Message message = Messages.serviceOffline(ServiceRegistry.APP_ID, service1.getServiceId());
 
         // When
         messageSender.sendMessage(Topic.SERVICE, message);

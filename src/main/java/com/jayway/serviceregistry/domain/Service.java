@@ -13,21 +13,22 @@ public class Service {
     private String createdBy;
     private String serviceUrl;
     private String sourceUrl;
-    private Map<String, Object> meta;
-    private Map<String, Object> optionalProperties;
+    private Map<String, Object> supplementaryBodyProperties;
+    private Map<String, Object> supplementaryMetaProperties;
 
     public Service(String serviceId, String description, String createdBy, String serviceUrl, String sourceUrl) {
         this(serviceId, description, createdBy, serviceUrl, sourceUrl, new HashMap<String, Object>(), new HashMap<String, Object>());
     }
 
-    public Service(String serviceId, String description, String createdBy, String serviceUrl, String sourceUrl, Map<String, Object> optionalProperties, Map<String, Object> meta) {
+    public Service(String serviceId, String description, String createdBy, String serviceUrl, String sourceUrl, Map<String, Object> supplementaryBodyProperties,
+                   Map<String, Object> supplementaryMetaProperties) {
         this.serviceId = serviceId;
         this.description = description;
         this.createdBy = createdBy;
         this.serviceUrl = serviceUrl;
         this.sourceUrl = sourceUrl;
-        this.meta = new HashMap<>(meta);
-        this.optionalProperties = new HashMap<>(optionalProperties);
+        this.supplementaryBodyProperties = new HashMap<>(supplementaryBodyProperties);
+        this.supplementaryMetaProperties = new HashMap<>(supplementaryMetaProperties);
     }
 
     public Service() {
@@ -73,20 +74,20 @@ public class Service {
         this.sourceUrl = sourceUrl;
     }
 
-    public Map<String, Object> getMeta() {
-        return meta;
+    public Map<String, Object> getSupplementaryBodyProperties() {
+        return supplementaryBodyProperties;
     }
 
-    public void setMeta(Map<String, Object> meta) {
-        this.meta = meta;
+    public void setSupplementaryBodyProperties(Map<String, Object> supplementaryBodyProperties) {
+        this.supplementaryBodyProperties = supplementaryBodyProperties;
     }
 
-    public Map<String, Object> getOptionalProperties() {
-        return optionalProperties;
+    public Map<String, Object> getSupplementaryMetaProperties() {
+        return supplementaryMetaProperties;
     }
 
-    public void setOptionalProperties(Map<String, Object> optionalProperties) {
-        this.optionalProperties = optionalProperties;
+    public void setSupplementaryMetaProperties(Map<String, Object> supplementaryMetaProperties) {
+        this.supplementaryMetaProperties = supplementaryMetaProperties;
     }
 
     @Override
@@ -98,12 +99,12 @@ public class Service {
 
         if (createdBy != null ? !createdBy.equals(service.createdBy) : service.createdBy != null) return false;
         if (description != null ? !description.equals(service.description) : service.description != null) return false;
-        if (meta != null ? !meta.equals(service.meta) : service.meta != null) return false;
-        if (optionalProperties != null ? !optionalProperties.equals(service.optionalProperties) : service.optionalProperties != null)
-            return false;
+        if (supplementaryMetaProperties != null ? !supplementaryMetaProperties.equals(service.supplementaryMetaProperties) : service.supplementaryMetaProperties != null) return false;
         if (serviceId != null ? !serviceId.equals(service.serviceId) : service.serviceId != null) return false;
         if (serviceUrl != null ? !serviceUrl.equals(service.serviceUrl) : service.serviceUrl != null) return false;
         if (sourceUrl != null ? !sourceUrl.equals(service.sourceUrl) : service.sourceUrl != null) return false;
+        if (supplementaryBodyProperties != null ? !supplementaryBodyProperties.equals(service.supplementaryBodyProperties) : service.supplementaryBodyProperties != null)
+            return false;
 
         return true;
     }
@@ -115,8 +116,8 @@ public class Service {
         result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
         result = 31 * result + (serviceUrl != null ? serviceUrl.hashCode() : 0);
         result = 31 * result + (sourceUrl != null ? sourceUrl.hashCode() : 0);
-        result = 31 * result + (meta != null ? meta.hashCode() : 0);
-        result = 31 * result + (optionalProperties != null ? optionalProperties.hashCode() : 0);
+        result = 31 * result + (supplementaryBodyProperties != null ? supplementaryBodyProperties.hashCode() : 0);
+        result = 31 * result + (supplementaryMetaProperties != null ? supplementaryMetaProperties.hashCode() : 0);
         return result;
     }
 }

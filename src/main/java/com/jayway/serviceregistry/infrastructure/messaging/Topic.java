@@ -1,4 +1,4 @@
-package com.jayway.serviceregistry.messagebus;
+package com.jayway.serviceregistry.infrastructure.messaging;
 
 public enum Topic {
     LOG("log"), GAME("game"), SERVICE("service");

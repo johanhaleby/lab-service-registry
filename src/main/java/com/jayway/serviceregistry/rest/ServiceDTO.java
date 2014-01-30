@@ -35,9 +35,6 @@ class ServiceDTO extends ResourceSupport {
     @XmlAttribute
     Map<String, Object> supplement;
 
-    @XmlAttribute
-    Map<String, Object> meta;
-
     ServiceDTO(Service service, Link... links) {
         for (Link link : links) {
             add(link);
@@ -47,13 +44,9 @@ class ServiceDTO extends ResourceSupport {
         this.createdBy = service.getCreatedBy();
         this.serviceUrl = service.getServiceUrl();
         this.sourceUrl = service.getSourceUrl();
-        this.supplement = service.getOptionalProperties();
+        this.supplement = service.getSupplementaryBodyProperties();
         if (this.supplement.isEmpty()) {
             this.supplement = null;
-        }
-        this.meta = service.getMeta();
-        if (this.meta.isEmpty()) {
-            this.meta = null;
         }
     }
 
@@ -79,9 +72,5 @@ class ServiceDTO extends ResourceSupport {
 
     public Map<String, Object> getSupplement() {
         return supplement;
-    }
-
-    public Map<String, Object> getMeta() {
-        return meta;
     }
 }

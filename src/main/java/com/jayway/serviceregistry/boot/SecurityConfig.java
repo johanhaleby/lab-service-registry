@@ -1,6 +1,6 @@
 package com.jayway.serviceregistry.boot;
 
-import com.jayway.serviceregistry.security.OAuthUserDetailsService;
+import com.jayway.serviceregistry.infrastructure.security.OAuthUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

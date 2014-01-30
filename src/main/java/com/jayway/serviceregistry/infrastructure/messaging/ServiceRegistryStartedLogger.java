@@ -1,7 +1,8 @@
-package com.jayway.serviceregistry.messagebus;
+package com.jayway.serviceregistry.infrastructure.messaging;
 
-import com.jayway.serviceregistry.messagebus.protocol.LogLevel;
-import com.jayway.serviceregistry.messagebus.protocol.Messages;
+import com.jayway.serviceregistry.infrastructure.messaging.protocol.LogLevel;
+import com.jayway.serviceregistry.infrastructure.messaging.protocol.Messages;
+import com.jayway.serviceregistry.infrastructure.messaging.protocol.ServiceRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextStartedEvent;
@@ -14,6 +15,6 @@ class ServiceRegistryStartedLogger implements ApplicationListener<ContextStarted
     MessageSender messageSender;
 
     public void onApplicationEvent(ContextStartedEvent event) {
-        messageSender.sendMessage(Topic.LOG, Messages.logEvent(LogLevel.INFO, "Service Registry started"));
+        messageSender.sendMessage(Topic.LOG, Messages.log(LogLevel.INFO, ServiceRegistry.APP_ID, "Service Registry started"));
     }
 }

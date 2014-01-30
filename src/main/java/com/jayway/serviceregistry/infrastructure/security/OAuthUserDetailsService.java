@@ -1,4 +1,4 @@
-package com.jayway.serviceregistry.security;
+package com.jayway.serviceregistry.infrastructure.security;
 
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;

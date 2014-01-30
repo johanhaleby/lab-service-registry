@@ -2,7 +2,7 @@ package com.jayway.serviceregistry.rest;
 
 import com.jayway.serviceregistry.domain.Service;
 import com.jayway.serviceregistry.domain.ServiceRepository;
-import com.jayway.serviceregistry.security.ServiceRegistryUser;
+import com.jayway.serviceregistry.infrastructure.security.ServiceRegistryUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,11 +1,10 @@
 package com.jayway.serviceregistry.boot;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.serviceregistry.messagebus.MessageSender;
-import com.jayway.serviceregistry.messagebus.ServiceMessageReceiver;
-import com.jayway.serviceregistry.messagebus.Topic;
-import com.jayway.serviceregistry.messagebus.protocol.Messages;
+import com.jayway.serviceregistry.infrastructure.messaging.MessageSender;
+import com.jayway.serviceregistry.infrastructure.messaging.ServiceMessageReceiver;
+import com.jayway.serviceregistry.infrastructure.messaging.Topic;
+import com.jayway.serviceregistry.infrastructure.messaging.converter.LabMessageConverter;
+import com.jayway.serviceregistry.infrastructure.messaging.protocol.ServiceRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -16,28 +15,22 @@ import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
-import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-
-import static com.jayway.serviceregistry.messagebus.Topic.LOG;
-import static com.jayway.serviceregistry.messagebus.protocol.LogLevel.ERROR;
 import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * Spring boot creates beans by default using the {@link org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration} class but we override the
- * {@link org.springframework.amqp.rabbit.connection.ConnectionFactory} here.
+ * {@link org.springframework.amqp.rabbit.connection.ConnectionFactory} here because of cyclic-dependency problems on Heroku.
  */
 @Configuration
 class RabbitMQConfiguration {
     private static final Logger log = LoggerFactory.getLogger(RabbitMQConfiguration.class);
-    private static final String SERVICE_REGISTRY_CLIENT_QUEUE_NAME = "service-registry-queue";
+    private static final String SERVICE_REGISTRY_CLIENT_QUEUE_NAME = ServiceRegistry.APP_ID + "-queue";
 
     @Value("${amqp.connection.url:}")
     String amqpConnectionUri;
@@ -215,48 +208,5 @@ class RabbitMQConfiguration {
             this.virtualHost = virtualHost;
         }
 
-    }
-
-    /**
-     * We create our own MessageConverter because Springs message converter require us to add several headers specifying the class type and content-type in order to
-     * serialize and deserialize correctly. This is not needed in our Lab so we role our own.
-     */
-    private static class LabMessageConverter implements MessageConverter {
-        final ObjectMapper objectMapper = new ObjectMapper();
-        private final MessageSender messageSender;
-
-        public LabMessageConverter(MessageSender messageSender) {
-            this.messageSender = messageSender;
-        }
-
-
-        @Override
-        public Message toMessage(Object object, MessageProperties messageProperties) throws MessageConversionException {
-            byte[] obj;
-            try {
-                obj = objectMapper.writeValueAsBytes(object);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-            messageProperties.setContentType("application/json");
-            return new Message(obj, messageProperties);
-        }
-
-        @Override
-        public Object fromMessage(Message message) throws MessageConversionException {
-            try {
-                return objectMapper.readValue(message.getBody(), Map.class);
-            } catch (Exception e) {
-                try {
-                    String messageAsString = StringUtils.toString(message.getBody(), "UTF-8");
-                    messageSender.sendMessage(LOG, Messages.logEvent(ERROR, "Couldn't parse message: " + messageAsString));
-                    log.info("Erroneous message received: " + messageAsString);
-                } catch (UnsupportedEncodingException uee) {
-                    log.info("Erroneous message with invalid encoding received.");
-                    messageSender.sendMessage(LOG, Messages.logEvent(ERROR, "Couldn't parse message since it was invalid and not encoded as UTF-8"));
-                }
-                return null;
-            }
-        }
     }
 }

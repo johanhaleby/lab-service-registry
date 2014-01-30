@@ -1,4 +1,4 @@
-package com.jayway.serviceregistry.security;
+package com.jayway.serviceregistry.infrastructure.security;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.authority.AuthorityUtils;
