@@ -53,8 +53,7 @@
         <dependency>
             <groupId>org.springframework.hateoas</groupId>
             <artifactId>spring-hateoas</artifactId>
-            <!-- There's a bug in 0.8.0.RELEASE that messes up HAL link generation -->
-            <version>0.9.0.BUILD-SNAPSHOT</version>
+            <version>0.9.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
