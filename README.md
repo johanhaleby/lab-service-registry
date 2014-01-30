@@ -76,14 +76,7 @@ Example:
 
 ### ServiceOfflineEvent
 
-Example:
-```javascript
-{
-   "streamId":"service1",
-   "messageId":"7f44fbf2-c7a5-43f7-b364-af62335fef39",
-   "type":"ServiceOfflineEvent"
-}
-```
+Body is empty. Use streamId to specify which service to unregister.
 
 Other Events
 ------------
