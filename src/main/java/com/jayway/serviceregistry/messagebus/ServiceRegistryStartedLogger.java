@@ -14,6 +14,6 @@ class ServiceRegistryStartedLogger implements ApplicationListener<ContextStarted
     MessageSender messageSender;
 
     public void onApplicationEvent(ContextStartedEvent event) {
-        messageSender.sendMessage(Topic.LOG, Messages.logEvent(LogLevel.INFO, "service-registry-started", "Service Registry started"));
+        messageSender.sendMessage(Topic.LOG, Messages.logEvent(LogLevel.INFO, "Service Registry started"));
     }
 }

@@ -152,7 +152,7 @@ public class ServiceMessageReceiver {
         Map<String, Object> meta = new HashMap<>();
         meta.put(STREAM_ID, streamId == null ? UNKNOWN : streamId);
         meta.put(MESSAGE_ID, messageId == null ? UNKNOWN : messageId);
-        messageSender.sendMessage(Topic.LOG, Messages.logEvent(logLevel, SERVICE_REGISTRY, message, meta));
+        messageSender.sendMessage(Topic.LOG, Messages.logEvent(logLevel, message, meta));
         log.debug("Sent log message '{}' with level {}.", message, logLevel);
         if (logLevel == ERROR) {
             throw new ServiceMessageNotCorrectException(message);

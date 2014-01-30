@@ -249,11 +249,11 @@ class RabbitMQConfiguration {
             } catch (Exception e) {
                 try {
                     String messageAsString = StringUtils.toString(message.getBody(), "UTF-8");
-                    messageSender.sendMessage(LOG, Messages.logEvent(ERROR, "service-registry", "Couldn't parse message: " + messageAsString));
+                    messageSender.sendMessage(LOG, Messages.logEvent(ERROR, "Couldn't parse message: " + messageAsString));
                     log.info("Erroneous message received: " + messageAsString);
                 } catch (UnsupportedEncodingException uee) {
                     log.info("Erroneous message with invalid encoding received.");
-                    messageSender.sendMessage(LOG, Messages.logEvent(ERROR, "service-registry", "Couldn't parse message since it was invalid and not encoded as UTF-8"));
+                    messageSender.sendMessage(LOG, Messages.logEvent(ERROR, "Couldn't parse message since it was invalid and not encoded as UTF-8"));
                 }
                 return null;
             }

@@ -14,6 +14,6 @@ class ServiceRegistryStoppedLogger implements ApplicationListener<ContextClosedE
     MessageSender messageSender;
 
     public void onApplicationEvent(ContextClosedEvent event) {
-        messageSender.sendMessage(Topic.LOG, Messages.logEvent(LogLevel.INFO, "service-registry-stopped", "Service Registry started"));
+        messageSender.sendMessage(Topic.LOG, Messages.logEvent(LogLevel.INFO, "Service Registry started"));
     }
 }
