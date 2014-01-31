@@ -21,7 +21,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .csrf().disable()
             .authorizeRequests()
-                .antMatchers("/resources/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
             .openidLogin() // Defined in OpenIDLoginConfigurer
