@@ -57,9 +57,9 @@ public class Messages {
         return createMessage(appId, MACHINE_ID, LOG, body, meta);
     }
 
-    public static Message serviceOffline(String appId, String serviceId) {
+    public static Message serviceOffline(String serviceId) {
         Map<String, Object> body = new HashMap<>();
-        return createMessage(appId, serviceId, SERVICE_OFFLINE, body, new HashMap<String, Object>());
+        return createMessage(serviceId, serviceId, SERVICE_OFFLINE, body, new HashMap<String, Object>());
     }
 
     private static Message createMessage(String appId, String streamId, String type, Map<String, Object> body, Map<String, Object> meta) {

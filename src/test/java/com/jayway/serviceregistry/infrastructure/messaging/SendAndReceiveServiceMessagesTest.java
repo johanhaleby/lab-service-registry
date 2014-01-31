@@ -5,7 +5,6 @@ import com.jayway.serviceregistry.domain.Service;
 import com.jayway.serviceregistry.domain.ServiceRepository;
 import com.jayway.serviceregistry.infrastructure.messaging.protocol.Message;
 import com.jayway.serviceregistry.infrastructure.messaging.protocol.Messages;
-import com.jayway.serviceregistry.infrastructure.messaging.protocol.ServiceRegistry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,7 +92,7 @@ public class SendAndReceiveServiceMessagesTest {
         serviceRepository.save(service1);
         serviceRepository.save(service2);
 
-        Message message = Messages.serviceOffline(ServiceRegistry.APP_ID, service1.getServiceId());
+        Message message = Messages.serviceOffline(service1.getServiceId());
 
         // When
         messageSender.sendMessage(Topic.SERVICE, message);
