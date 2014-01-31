@@ -62,7 +62,7 @@ Messages consumed by Service Registry
 -------------------------------------
 
 ### ServiceOnlineEvent
-Note that appId and streamId will be the same this event.
+Note that appId and streamId will be the same for this event.
 
 Use streamId to specify the unique name of the service, must be human readable (no UUID).
 
