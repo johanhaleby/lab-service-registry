@@ -51,7 +51,7 @@ All messages requires the following message properties (not defined in the body 
     </tr>
     <tr>
         <td>streamId</td>
-        <td>The id of the stream (aggregate id). May be equal to appId in some cases or a UUID.</td>
+        <td>The id of the stream (aggregate id). May be equal to appId in some cases or a UUID. Stored in `headers["streamId"]`</td>
     </tr>
     <tr>
         <td>timestamp</td>
