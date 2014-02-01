@@ -28,7 +28,11 @@ The following topics have been defined:
 
 ### service
 
-Messages containing the status of a specific service such as the service going online or simple logging.
+Messages containing the status of a specific service such as the service going online.
+
+### log
+
+Messages containing log information.
 
 ### game
 
